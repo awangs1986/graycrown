@@ -5,6 +5,7 @@ import { gradeLesson, visibleOutput } from './judge.mjs';
 import { emptySave, loadSave, normalizeSave, writeSave } from './save-store.mjs';
 import { consumeAnswerToken, tokenCount } from './answer-store.mjs';
 import { loadAiSettings, requestAiTutor, requestCompilerExplanation, saveAiSettings, testAiConnection } from './ai-service.mjs';
+import { EN, ZH, applyStaticLanguage, localizeChapter, localizeLesson, localizeStarterCode, pick, runtimeStatus } from './i18n.mjs';
 
 const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
@@ -28,7 +29,7 @@ const editor = createEditor($('#codeEditor'), source => {
 const compiler = new CompilerService((status, text) => {
   const badge = $('#runtimeBadge');
   badge.className = `runtime-badge ${status}`;
-  badge.textContent = text;
+  badge.textContent = runtimeStatus(text, state.language);
 });
 
 if (new URLSearchParams(location.search).has('regression')) {
@@ -85,24 +86,24 @@ if (new URLSearchParams(location.search).has('regression')) {
 function queueSave(showStatus = true) {
   state.updatedAt = new Date().toISOString();
   const snapshot = structuredClone(state);
-  if (showStatus) $('#saveState').textContent = '○ 正在写入 JSON';
+  if (showStatus) $('#saveState').textContent = tr('○ Writing JSON', '○ 正在写入 JSON');
   saveChain = saveChain
     .catch(() => {})
     .then(() => writeSave(snapshot))
     .then(saved => {
       state.updatedAt = saved.updatedAt;
-      if (showStatus) $('#saveState').textContent = '● JSON 存档已保存';
+      if (showStatus) $('#saveState').textContent = tr('● JSON save stored', '● JSON 存档已保存');
     })
     .catch(error => {
-      if (showStatus) $('#saveState').textContent = '× 存档失败';
-      showToast('本地存档写入失败', error.message, true);
+      if (showStatus) $('#saveState').textContent = tr('× Save failed', '× 存档失败');
+      showToast(tr('Local Save Failed', '本地存档写入失败'), localizedError(error.message), true);
     });
   updateStats();
   return saveChain;
 }
 
 function scheduleSave() {
-  $('#saveState').textContent = '○ 等待写入 JSON';
+  $('#saveState').textContent = tr('○ Waiting to write JSON', '○ 等待写入 JSON');
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => queueSave(), 450);
 }
@@ -111,6 +112,16 @@ function level() { return Math.floor(state.xp / 100) + 1; }
 function completedCount() { return state.completed.length; }
 function currentLesson() { return lessons[state.currentQuest]; }
 function currentChapter() { return chapters[state.currentChapter] ?? chapters[0]; }
+function shownLesson(lesson = currentLesson()) { return localizeLesson(lesson, state.language); }
+function shownChapter(chapter = currentChapter()) { return localizeChapter(chapter, state.language); }
+function tr(english, chinese) { return pick(state.language, english, chinese); }
+function localizedError(message = '') {
+  if (state.language === ZH) return message;
+  return message
+    .replace(/读取存档失败（HTTP (\d+)）/, 'Failed to read save (HTTP $1)')
+    .replace(/保存失败（HTTP (\d+)）/, 'Save failed (HTTP $1)')
+    .replace(/请求失败（HTTP (\d+)）/, 'Request failed (HTTP $1)');
+}
 function completedInChapter(chapter = currentChapter()) { return chapter.lessons.filter(lesson => state.completed.includes(lesson.id)).length; }
 function isChapterUnlocked(index) { return index === 0 || completedInChapter(chapters[index - 1]) >= chapters[index - 1].total; }
 
@@ -123,7 +134,7 @@ function updateStats() {
   if (answerButton) {
     const used = state.answerUses?.[chapterId]?.includes(currentLesson()?.id);
     answerButton.disabled = tokenCount(state, chapterId) < 1 && !used;
-    answerButton.textContent = used ? '🔮 再看正确答案' : '🔮 查看正确答案';
+    answerButton.textContent = used ? tr('🔮 View Answer Again', '🔮 再看正确答案') : tr('🔮 Reveal Answer', '🔮 查看正确答案');
   }
   updateAiTutorButton();
 }
@@ -135,8 +146,8 @@ function updateAiTutorButton() {
   const failures = state.consecutiveFailures?.[lesson.id] ?? 0;
   const used = Boolean(state.aiTutorUses?.[lesson.chapterId]);
   button.disabled = aiTutorBusy || used || failures < 3;
-  button.textContent = used ? '🧙 本章已使用' : failures < 3 ? `🧙 AI导师 ${failures}/3` : aiTutorBusy ? '🧙 正在请教…' : '🧙 AI导师可用';
-  button.title = used ? 'AI导师每章只能使用一次' : failures < 3 ? `还需连续提交错误 ${3 - failures} 次` : '本章唯一一次AI导师已经解锁';
+  button.textContent = used ? tr('🧙 Used This Chapter', '🧙 本章已使用') : failures < 3 ? tr(`🧙 AI Mentor ${failures}/3`, `🧙 AI导师 ${failures}/3`) : aiTutorBusy ? tr('🧙 Asking…', '🧙 正在请教…') : tr('🧙 AI Mentor Ready', '🧙 AI导师可用');
+  button.title = used ? tr('The AI Mentor can be used once per chapter', 'AI导师每章只能使用一次') : failures < 3 ? tr(`${3 - failures} more consecutive failed submissions required`, `还需连续提交错误 ${3 - failures} 次`) : tr('This chapter’s one AI Mentor use is unlocked', '本章唯一一次AI导师已经解锁');
 }
 
 function showView(view) {
@@ -170,7 +181,7 @@ function isUnlocked(index) {
 }
 
 async function startJourney(reset = false) {
-  if (reset) state = emptySave();
+  if (reset) state = { ...emptySave(), language: state.language };
   state.started = true;
   state.currentChapter = 0;
   await queueSave(false);
@@ -179,24 +190,30 @@ async function startJourney(reset = false) {
 }
 
 function renderStart() {
+  applyStaticLanguage(state.language);
   const hasSave = state.started;
   $('#continueBtn').hidden = !hasSave;
   $('#saveSummary').hidden = !hasSave;
   if (hasSave) {
-    const next = lessons[Math.min(state.currentQuest, lessons.length - 1)];
-    const savedChapter = chapters[next.chapterIndex] ?? chapters[0];
-    $('#saveSummary').textContent = `${savedChapter.title} ${completedInChapter(savedChapter)}/20 · 总进度 ${completedCount()}/140 · 最近任务：${next.title}`;
-    $('#newJourneyBtn').textContent = '重新开始';
+    const rawNext = lessons[Math.min(state.currentQuest, lessons.length - 1)];
+    const savedChapter = chapters[rawNext.chapterIndex] ?? chapters[0];
+    const next = shownLesson(rawNext);
+    const visibleChapter = shownChapter(savedChapter);
+    $('#saveSummary').textContent = tr(`${visibleChapter.title} ${completedInChapter(savedChapter)}/20 · Total ${completedCount()}/140 · Latest: ${next.title}`, `${visibleChapter.title} ${completedInChapter(savedChapter)}/20 · 总进度 ${completedCount()}/140 · 最近任务：${next.title}`);
+    $('#newJourneyBtn').textContent = tr('Restart Journey', '重新开始');
   }
   updateStats();
   showView($('#startView'));
 }
 
 function renderMap() {
+  applyStaticLanguage(state.language);
   const chapter = currentChapter();
+  const visibleChapter = shownChapter(chapter);
   const path = $('#questPath');
   path.replaceChildren();
   chapter.lessons.forEach((lesson, localIndex) => {
+    const visibleLesson = shownLesson(lesson);
     const index = chapterStart(state.currentChapter) + localIndex;
     const unlocked = isUnlocked(index);
     const status = statusFor(index);
@@ -204,30 +221,33 @@ function renderMap() {
     button.type = 'button';
     button.className = `quest-node ${unlocked ? 'unlocked' : 'locked'} ${status !== 'open' ? status : ''} ${index === state.currentQuest ? 'current' : ''}`;
     button.disabled = !unlocked;
-    button.title = unlocked ? `${lesson.id} ${lesson.title}` : '完成前一项试炼后开放';
+    button.title = unlocked ? `${lesson.id} ${visibleLesson.title}` : tr('Complete the previous trial to unlock', '完成前一项试炼后开放');
     const icon = status === 'completed' ? '✓' : status === 'skipped' ? '!' : unlocked ? String(localIndex + 1).padStart(2, '0') : '🔒';
-    button.innerHTML = `<span class="node-orb">${icon}</span><small>${lesson.title}</small>`;
+    button.innerHTML = `<span class="node-orb">${icon}</span><small>${visibleLesson.title}</small>`;
     if (unlocked) button.addEventListener('click', () => openQuest(index));
     path.appendChild(button);
   });
   const progress = completedInChapter(chapter);
   $('#mapProgressBar').style.width = `${progress / chapter.total * 100}%`;
   $('#mapProgressText').textContent = `${progress} / ${chapter.total}`;
-  $('#mapRune').textContent = chapter.rune;
-  $('#mapChapterTitle').textContent = chapter.title;
-  $('#mapChapterDescription').textContent = chapter.description;
-  $('#chapterCounter').textContent = `第 ${state.currentChapter + 1} / ${chapters.length} 章`;
-  $('#questPath').setAttribute('aria-label', `${chapter.title}任务路线`);
+  $('#mapRune').textContent = visibleChapter.rune;
+  $('#mapChapterTitle').textContent = visibleChapter.title;
+  $('#mapChapterDescription').textContent = visibleChapter.description;
+  $('#chapterCounter').textContent = tr(`Chapter ${state.currentChapter + 1} / ${chapters.length}`, `第 ${state.currentChapter + 1} / ${chapters.length} 章`);
+  $('#questPath').setAttribute('aria-label', tr(`${visibleChapter.title} quest route`, `${visibleChapter.title}任务路线`));
   $('#prevChapterBtn').disabled = state.currentChapter === 0;
   $('#nextChapterBtn').disabled = state.currentChapter === chapters.length - 1 || !isChapterUnlocked(state.currentChapter + 1);
 
   const cards = $('#chapterCards');
   cards.replaceChildren(...chapters.map((item, index) => {
+    const visibleItem = shownChapter(item);
     const unlocked = isChapterUnlocked(index);
     const done = completedInChapter(item);
     const card = document.createElement('article');
     card.className = `region-card ${unlocked ? 'unlocked' : ''} ${index === state.currentChapter ? 'current' : ''}`;
-    card.innerHTML = `<span>${item.numeral}</span><div><b>${item.title}</b><small>${unlocked ? `${done}/${item.total} · ${item.subtitle}` : `完成${chapters[index - 1]?.title ?? ''}后开放`}</small></div><button type="button" ${unlocked ? '' : 'disabled'} aria-label="${item.title}">${unlocked ? (index === state.currentChapter ? '●' : '→') : '🔒'}</button>`;
+    const previous = index ? shownChapter(chapters[index - 1]).title : '';
+    const status = unlocked ? `${done}/${item.total} · ${visibleItem.subtitle}` : tr(`Complete ${previous} to unlock`, `完成${previous}后开放`);
+    card.innerHTML = `<span>${item.numeral}</span><div><b>${visibleItem.title}</b><small>${status}</small></div><button type="button" ${unlocked ? '' : 'disabled'} aria-label="${visibleItem.title}">${unlocked ? (index === state.currentChapter ? '●' : '→') : '🔒'}</button>`;
     if (unlocked) card.querySelector('button').addEventListener('click', () => switchChapter(index));
     return card;
   }));
@@ -252,40 +272,44 @@ function openQuest(index) {
 }
 
 function renderQuest() {
+  applyStaticLanguage(state.language);
   const lesson = currentLesson();
+  const visibleLesson = shownLesson(lesson);
   const index = state.currentQuest;
   const chapter = chapters[lesson.chapterIndex];
+  const visibleChapter = shownChapter(chapter);
   const localIndex = lesson.localIndex;
-  $('#challengeCrumb').textContent = `${chapter.title} / ${lesson.title}`;
+  $('#challengeCrumb').textContent = `${visibleChapter.title} / ${visibleLesson.title}`;
   $('#questCounter').textContent = `${String(localIndex + 1).padStart(2, '0')} / ${chapter.total}`;
-  $('#questEyebrow').textContent = `${lesson.id} · ${chapter.title}试炼`;
-  $('#questTitle').textContent = lesson.title;
-  $('#difficultyChip').textContent = lesson.difficulty;
-  $('#knowledgeChip').textContent = lesson.knowledge;
-  $('#timeChip').textContent = `约 ${lesson.minutes} 分钟`;
-  $('#questQuote').textContent = lesson.quote;
-  $('#questStory').textContent = lesson.story;
-  $('#questObjective').innerHTML = lesson.objective;
-  $('#questRules').innerHTML = lesson.rules;
+  $('#questEyebrow').textContent = tr(`${lesson.id} · ${visibleChapter.title} Trial`, `${lesson.id} · ${visibleChapter.title}试炼`);
+  $('#questTitle').textContent = visibleLesson.title;
+  $('#difficultyChip').textContent = visibleLesson.difficulty;
+  $('#knowledgeChip').textContent = visibleLesson.knowledge;
+  $('#timeChip').textContent = tr(`About ${lesson.minutes} min`, `约 ${lesson.minutes} 分钟`);
+  $('#questQuote').textContent = visibleLesson.quote;
+  $('#questStory').textContent = visibleLesson.story;
+  $('#questObjective').innerHTML = visibleLesson.objective;
+  $('#questRules').innerHTML = visibleLesson.rules;
   $('#prevQuestBtn').disabled = localIndex === 0 || !isUnlocked(index - 1);
   $('#nextQuestBtn').disabled = localIndex === chapter.total - 1 || !isUnlocked(index + 1);
 
   const hintsOpened = new Set(state.hints[lesson.id] ?? []);
-  $('#hintList').replaceChildren(...lesson.hints.map((hintText, hintIndex) => {
+  $('#hintList').replaceChildren(...visibleLesson.hints.map((hintText, hintIndex) => {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = `hint ${hintsOpened.has(hintIndex) ? 'open' : ''}`;
-    button.innerHTML = `<span class="hint-head">提示${['一 · 方向', '二 · 步骤', '三 · 骨架'][hintIndex]}<b>${hintsOpened.has(hintIndex) ? '−' : '＋'}</b></span><span class="hint-body">${hintText}</span>`;
+    const hintNames = state.language === ZH ? ['提示一 · 方向', '提示二 · 步骤', '提示三 · 骨架'] : ['Hint 1 · Direction', 'Hint 2 · Steps', 'Hint 3 · Skeleton'];
+    button.innerHTML = `<span class="hint-head">${hintNames[hintIndex]}<b>${hintsOpened.has(hintIndex) ? '−' : '＋'}</b></span><span class="hint-body">${hintText}</span>`;
     button.addEventListener('click', () => toggleHint(hintIndex, button));
     return button;
   }));
 
-  editor.setValue(state.drafts[lesson.id] ?? lesson.starterCode);
+  editor.setValue(state.drafts[lesson.id] ?? localizeStarterCode(lesson.starterCode, state.language));
   editor.setDiagnostics([]);
   $('#stdinInput').value = state.inputs[lesson.id] ?? lesson.defaultInput ?? '';
   updateSkipVisibility();
   const failures = state.consecutiveFailures?.[lesson.id] ?? 0;
-  $('#attemptLabel').textContent = `正式提交 ${state.attempts[lesson.id] ?? 0} 次 · 连续错误 ${failures}/3`;
+  $('#attemptLabel').textContent = tr(`Submitted ${state.attempts[lesson.id] ?? 0} times · Consecutive failures ${failures}/3`, `正式提交 ${state.attempts[lesson.id] ?? 0} 次 · 连续错误 ${failures}/3`);
   lastResult = null;
   setResultTab('console');
   $('#questPanel').scrollTop = 0;
@@ -296,8 +320,8 @@ function openAnswerDialog(lesson, answer, alreadyRevealed) {
   const chapterId = lesson.chapterId;
   $('#answerCode').textContent = answer;
   $('#answerDialogCopy').textContent = alreadyRevealed
-    ? '这道题已经解锁过答案，不会再次消耗水晶。'
-    : `本章还剩 ${tokenCount(state, chapterId)} 枚真知水晶。答案仅供参考，建议重新输入并运行一次。`;
+    ? tr('This answer is already unlocked. No additional crystal will be spent.', '这道题已经解锁过答案，不会再次消耗水晶。')
+    : tr(`This chapter has ${tokenCount(state, chapterId)} crystals left. Use the answer as a reference, then run it yourself.`, `本章还剩 ${tokenCount(state, chapterId)} 枚真知水晶。答案仅供参考，建议重新输入并运行一次。`);
   $('#answerDialog').showModal();
 }
 
@@ -305,7 +329,7 @@ function showAnswer() {
   const lesson = currentLesson();
   const answer = solutions[state.currentQuest];
   if (!answer) {
-    showToast('答案暂未配置', '这道题还没有加入真知水晶的答案库。', true);
+    showToast(tr('Answer Not Available', '答案暂未配置'), tr('This quest has not been added to the answer archive.', '这道题还没有加入真知水晶的答案库。'), true);
     return;
   }
   const chapterId = lesson.chapterId;
@@ -316,10 +340,10 @@ function showAnswer() {
   }
   const remaining = tokenCount(state, chapterId);
   if (remaining < 1) {
-    showToast('真知水晶已经用完', '本章20题只有3枚水晶。', true);
+    showToast(tr('No Crystals Left', '真知水晶已经用完'), tr('Each chapter provides only 3 crystals for 20 quests.', '本章20题只有3枚水晶。'), true);
     return;
   }
-  $('#answerConfirmCopy').textContent = `查看“${lesson.title}”的完整答案会消耗1枚水晶。当前剩余：${remaining}枚。`;
+  $('#answerConfirmCopy').textContent = tr(`Revealing the full answer to “${shownLesson(lesson).title}” costs 1 crystal. Remaining: ${remaining}.`, `查看“${shownLesson(lesson).title}”的完整答案会消耗1枚水晶。当前剩余：${remaining}枚。`);
   $('#answerConfirmDialog').showModal();
 }
 
@@ -328,12 +352,12 @@ function confirmAnswerUse() {
   const answer = solutions[state.currentQuest];
   if (!consumeAnswerToken(state, lesson.id, lesson.chapterId)) {
     $('#answerConfirmDialog').close();
-    showToast('真知水晶已经用完', '本章20题只有3枚水晶。', true);
+    showToast(tr('No Crystals Left', '真知水晶已经用完'), tr('Each chapter provides only 3 crystals for 20 quests.', '本章20题只有3枚水晶。'), true);
     return;
   }
   queueSave(false);
   $('#answerConfirmDialog').close();
-  showToast('水晶已消耗', `本章还剩 ${tokenCount(state, lesson.chapterId)} 枚真知水晶。`);
+  showToast(tr('Crystal Spent', '水晶已消耗'), tr(`${tokenCount(state, lesson.chapterId)} crystals remain in this chapter.`, `本章还剩 ${tokenCount(state, lesson.chapterId)} 枚真知水晶。`));
   openAnswerDialog(lesson, answer, false);
 }
 
@@ -368,23 +392,23 @@ function updateCompilerExplainButton() {
   const hasError = Boolean(execution && (!execution.ok || execution.stderr?.trim()));
   button.hidden = activeTab !== 'compiler' || !hasError;
   button.disabled = compilerExplainBusy;
-  button.textContent = compilerExplainBusy ? '✨ 正在解释…' : '✨ AI解释错误';
+  button.textContent = compilerExplainBusy ? tr('✨ Explaining…', '✨ 正在解释…') : tr('✨ Explain with AI', '✨ AI解释错误');
 }
 
 function formatTests(result) {
-  if (!result?.tests?.length) return '还没有正式测试结果。';
+  if (!result?.tests?.length) return tr('No formal test results yet.', '还没有正式测试结果。');
   const lines = result.tests.map(test => `${test.passed ? '✓' : '✕'} ${test.name}\n  ${test.message}`);
   const failedDiff = result.tests.find(test => !test.passed && 'expected' in test);
-  if (failedDiff) lines.push(`\n你的输出：\n${visibleOutput(failedDiff.actual)}\n\n预期输出：\n${visibleOutput(failedDiff.expected)}`);
+  if (failedDiff) lines.push(tr(`\nYour output:\n${visibleOutput(failedDiff.actual, state.language)}\n\nExpected output:\n${visibleOutput(failedDiff.expected, state.language)}`, `\n你的输出：\n${visibleOutput(failedDiff.actual, state.language)}\n\n预期输出：\n${visibleOutput(failedDiff.expected, state.language)}`));
   return lines.join('\n');
 }
 
 function formatCompiler(result) {
   const execution = result?.execution ?? result;
-  if (!execution) return '运行代码后，这里会显示真正的 Clang 编译信息。';
-  if (execution.ok && !execution.stderr) return '✓ Clang 编译通过，程序正常结束。';
-  const localized = execution.diagnostics?.map(item => `${item.level === 'warning' ? '△' : '✕'} 第${item.line}行:${item.column} ${item.message}`).join('\n');
-  return [localized, execution.stderr].filter(Boolean).join('\n\n') || `程序退出码：${execution.code}`;
+  if (!execution) return tr('Run the code to see real Clang compiler information here.', '运行代码后，这里会显示真正的 Clang 编译信息。');
+  if (execution.ok && !execution.stderr) return tr('✓ Clang compilation passed and the program ended normally.', '✓ Clang 编译通过，程序正常结束。');
+  const localized = execution.diagnostics?.map(item => tr(`${item.level === 'warning' ? '△' : '✕'} Line ${item.line}:${item.column} ${item.message}`, `${item.level === 'warning' ? '△' : '✕'} 第${item.line}行:${item.column} ${item.message}`)).join('\n');
+  return [localized, execution.stderr].filter(Boolean).join('\n\n') || tr(`Program exit code: ${execution.code}`, `程序退出码：${execution.code}`);
 }
 
 function renderResult() {
@@ -392,12 +416,12 @@ function renderResult() {
   panel.className = 'result-content';
   updateCompilerExplainButton();
   if (!lastResult) {
-    panel.textContent = activeTab === 'console' ? '等待运行程序…' : activeTab === 'tests' ? '提交符文后，这里会显示逐项测试结果。' : '运行代码后，这里会显示真正的 Clang 编译信息。';
+    panel.textContent = activeTab === 'console' ? tr('Waiting to run the program…', '等待运行程序…') : activeTab === 'tests' ? tr('Submit the rune to see each test result.', '提交符文后，这里会显示逐项测试结果。') : tr('Run the code to see real Clang compiler information here.', '运行代码后，这里会显示真正的 Clang 编译信息。');
     return;
   }
   const execution = lastResult.execution ?? lastResult;
   if (activeTab === 'console') {
-    panel.textContent = execution.ok ? `> 程序运行结束（退出码 ${execution.code}）\n\n${execution.output || '(没有输出)'}` : `> 程序没有成功结束\n\n${formatCompiler(lastResult)}`;
+    panel.textContent = execution.ok ? tr(`> Program finished (exit code ${execution.code})\n\n${execution.output || '(no output)'}`, `> 程序运行结束（退出码 ${execution.code}）\n\n${execution.output || '(没有输出)'}`) : tr(`> Program did not finish successfully\n\n${formatCompiler(lastResult)}`, `> 程序没有成功结束\n\n${formatCompiler(lastResult)}`);
     panel.classList.add(execution.ok ? 'success' : 'error');
   } else if (activeTab === 'tests') {
     panel.textContent = formatTests(lastResult);
@@ -412,24 +436,25 @@ async function explainCompilerError() {
   const execution = lastResult?.execution ?? lastResult;
   if (!execution || (execution.ok && !execution.stderr?.trim()) || compilerExplainBusy) return;
   const lesson = currentLesson();
+  const visibleLesson = shownLesson(lesson);
   compilerExplainBusy = true;
   updateCompilerExplainButton();
   try {
     const result = await requestCompilerExplanation({
       lessonId: lesson.id,
-      title: lesson.title,
-      objective: lesson.objective,
-      rules: lesson.rules,
+      title: visibleLesson.title,
+      objective: visibleLesson.objective,
+      rules: visibleLesson.rules,
       code: editor.getValue(),
       compilerMessage: formatCompiler(lastResult),
       output: execution.output ?? ''
     });
-    $('#aiTutorTitle').textContent = `${lesson.title} · 错误解释`;
-    $('#aiTutorDisclaimer').textContent = '这次解释不消耗每章一次的AI导师机会；最终仍以真实Clang编译结果为准。';
+    $('#aiTutorTitle').textContent = tr(`${visibleLesson.title} · Error Explanation`, `${visibleLesson.title} · 错误解释`);
+    $('#aiTutorDisclaimer').textContent = tr('This explanation does not spend the chapter’s AI Mentor use. Real Clang results remain authoritative.', '这次解释不消耗每章一次的AI导师机会；最终仍以真实Clang编译结果为准。');
     $('#aiTutorContent').textContent = result.content;
     $('#aiTutorDialog').showModal();
   } catch (error) {
-    showToast('AI未能解释错误', `${error.message}。请确认设置中的API连接正常。`, true);
+    showToast(tr('AI Could Not Explain the Error', 'AI未能解释错误'), tr(`${error.message}. Check the API connection in Settings.`, `${error.message}。请确认设置中的API连接正常。`), true);
   } finally {
     compilerExplainBusy = false;
     updateCompilerExplainButton();
@@ -440,7 +465,7 @@ function setBusy(value) {
   busy = value;
   $('#runBtn').disabled = value;
   $('#submitBtn').disabled = value;
-  $('#runBtn').textContent = value ? '⏳ 编译中…' : '▶ 运行代码';
+  $('#runBtn').textContent = value ? tr('⏳ Compiling…', '⏳ 编译中…') : tr('▶ Run Code', '▶ 运行代码');
 }
 
 async function execute() {
@@ -473,22 +498,23 @@ async function submitCode() {
   state.attempts[id] = (state.attempts[id] ?? 0) + 1;
   state.drafts[id] = editor.getValue();
   state.inputs[id] = $('#stdinInput').value;
-  lastResult = gradeLesson(lesson, editor.getValue(), execution);
+  lastResult = gradeLesson(lesson, editor.getValue(), execution, state.language);
   setResultTab(lastResult.passed ? 'tests' : execution.ok ? 'tests' : 'compiler');
-  $('#attemptLabel').textContent = `正式提交 ${state.attempts[id]} 次 · 运行不会扣除奖励`;
+  $('#attemptLabel').textContent = tr(`Submitted ${state.attempts[id]} times · Running never reduces rewards`, `正式提交 ${state.attempts[id]} 次 · 运行不会扣除奖励`);
   updateSkipVisibility();
   if (lastResult.passed) completeQuest();
   else {
     state.consecutiveFailures[id] = (state.consecutiveFailures[id] ?? 0) + 1;
-    $('#attemptLabel').textContent = `正式提交 ${state.attempts[id]} 次 · 连续错误 ${state.consecutiveFailures[id]}/3`;
+    $('#attemptLabel').textContent = tr(`Submitted ${state.attempts[id]} times · Consecutive failures ${state.consecutiveFailures[id]}/3`, `正式提交 ${state.attempts[id]} 次 · 连续错误 ${state.consecutiveFailures[id]}/3`);
     updateAiTutorButton();
     queueSave(false);
-    showToast('符文尚未响应', lastResult.tests.find(test => !test.passed)?.message ?? '请查看 Clang 的错误提示。', true);
+    showToast(tr('The Rune Has Not Responded', '符文尚未响应'), lastResult.tests.find(test => !test.passed)?.message ?? tr('Check the Clang error details.', '请查看 Clang 的错误提示。'), true);
   }
 }
 
 function completeQuest() {
   const lesson = currentLesson();
+  const visibleLesson = shownLesson(lesson);
   state.consecutiveFailures[lesson.id] = 0;
   const firstPass = !state.completed.includes(lesson.id);
   if (firstPass) {
@@ -498,8 +524,8 @@ function completeQuest() {
     state.gold += lesson.localIndex === 19 ? 20 : 10;
   }
   queueSave(false);
-  $('#completionTitle').textContent = firstPass ? `${lesson.title} · 完成` : '符文再次回应';
-  $('#completionStory').textContent = lesson.passStory;
+  $('#completionTitle').textContent = firstPass ? tr(`${visibleLesson.title} · Complete`, `${visibleLesson.title} · 完成`) : tr('The Rune Answers Again', '符文再次回应');
+  $('#completionStory').textContent = visibleLesson.passStory;
   $('#xpReward').textContent = firstPass ? (lesson.localIndex === 19 ? 40 : 20) : 0;
   $('#goldReward').textContent = firstPass ? (lesson.localIndex === 19 ? 20 : 10) : 0;
   $('#nextAfterPassBtn').hidden = state.currentQuest === lessons.length - 1;
@@ -507,17 +533,18 @@ function completeQuest() {
 }
 
 async function openSettings() {
+  applyStaticLanguage(state.language);
   $('#settingsDialog').showModal();
   const status = $('#aiSettingsStatus');
   status.className = 'ai-settings-status';
-  status.textContent = '正在读取本机AI设置…';
+  status.textContent = tr('Reading local AI settings…', '正在读取本机AI设置…');
   try {
     const settings = await loadAiSettings();
     $('#aiApiUrl').value = settings.apiUrl ?? '';
     $('#aiModel').value = settings.model ?? '';
     $('#aiApiKey').value = '';
-    $('#aiApiKey').placeholder = settings.hasApiKey ? '已保存API Key；留空则保持不变' : '本地无鉴权服务可留空';
-    status.textContent = settings.configured ? 'AI接口已配置，可以测试连接。' : '尚未配置AI接口。';
+    $('#aiApiKey').placeholder = settings.hasApiKey ? tr('API key saved; leave blank to keep it', '已保存API Key；留空则保持不变') : tr('Leave blank for local services without authentication', '本地无鉴权服务可留空');
+    status.textContent = settings.configured ? tr('The AI API is configured. You can test the connection.', 'AI接口已配置，可以测试连接。') : tr('The AI API is not configured yet.', '尚未配置AI接口。');
   } catch (error) {
     status.className = 'ai-settings-status error';
     status.textContent = error.message;
@@ -531,12 +558,12 @@ function aiSettingsFromForm() {
 async function persistAiSettings() {
   const status = $('#aiSettingsStatus');
   status.className = 'ai-settings-status';
-  status.textContent = '正在保存AI设置…';
+  status.textContent = tr('Saving AI settings…', '正在保存AI设置…');
   const result = await saveAiSettings(aiSettingsFromForm());
   $('#aiApiKey').value = '';
-  $('#aiApiKey').placeholder = result.hasApiKey ? '已保存API Key；留空则保持不变' : '本地无鉴权服务可留空';
+  $('#aiApiKey').placeholder = result.hasApiKey ? tr('API key saved; leave blank to keep it', '已保存API Key；留空则保持不变') : tr('Leave blank for local services without authentication', '本地无鉴权服务可留空');
   status.className = 'ai-settings-status success';
-  status.textContent = 'AI设置已保存到本机。';
+  status.textContent = tr('AI settings were saved locally.', 'AI设置已保存到本机。');
 }
 
 async function saveAiSettingsFromDialog() {
@@ -550,51 +577,53 @@ async function saveAiSettingsFromDialog() {
 async function testAiSettingsFromDialog() {
   const button = $('#testAiSettingsBtn');
   button.disabled = true;
-  button.textContent = '正在测试…';
+  button.textContent = tr('Testing…', '正在测试…');
   try {
     await persistAiSettings();
     const result = await testAiConnection();
     $('#aiSettingsStatus').className = 'ai-settings-status success';
-    $('#aiSettingsStatus').textContent = `连接成功，模型回复：${result.reply}`;
+    $('#aiSettingsStatus').textContent = tr(`Connected. Model reply: ${result.reply}`, `连接成功，模型回复：${result.reply}`);
   } catch (error) {
     $('#aiSettingsStatus').className = 'ai-settings-status error';
-    $('#aiSettingsStatus').textContent = `连接失败：${error.message}`;
+    $('#aiSettingsStatus').textContent = tr(`Connection failed: ${error.message}`, `连接失败：${error.message}`);
   } finally {
     button.disabled = false;
-    button.textContent = '测试连接';
+    button.textContent = tr('Test Connection', '测试连接');
   }
 }
 
 function showAiTutorConfirm() {
   const lesson = currentLesson();
+  const visibleLesson = shownLesson(lesson);
   const failures = state.consecutiveFailures?.[lesson.id] ?? 0;
   if (state.aiTutorUses?.[lesson.chapterId]) {
-    showToast('本章已经召唤过AI导师', '每章只能使用一次AI导师。', true);
+    showToast(tr('AI Mentor Already Used', '本章已经召唤过AI导师'), tr('The AI Mentor can be used only once per chapter.', '每章只能使用一次AI导师。'), true);
     return;
   }
   if (failures < 3) {
-    showToast('AI导师尚未解锁', `同一道题还需连续提交错误 ${3 - failures} 次。`, true);
+    showToast(tr('AI Mentor Is Still Locked', 'AI导师尚未解锁'), tr(`Submit an incorrect answer ${3 - failures} more consecutive time(s) on this quest.`, `同一道题还需连续提交错误 ${3 - failures} 次。`), true);
     return;
   }
-  $('#aiConfirmCopy').textContent = `“${lesson.title}”已连续提交错误${failures}次。AI导师每章只能使用一次；确认后会发送当前题目、代码、编译信息和输出。`;
+  $('#aiConfirmCopy').textContent = tr(`“${visibleLesson.title}” has failed ${failures} consecutive submissions. The AI Mentor can be used once per chapter; your quest, code, compiler details, and output will be sent to your configured API.`, `“${visibleLesson.title}”已连续提交错误${failures}次。AI导师每章只能使用一次；确认后会发送当前题目、代码、编译信息和输出。`);
   $('#aiConfirmDialog').showModal();
 }
 
 async function confirmAiTutor() {
   const lesson = currentLesson();
+  const visibleLesson = shownLesson(lesson);
   if (state.aiTutorUses?.[lesson.chapterId] || aiTutorBusy) return;
   aiTutorBusy = true;
   updateAiTutorButton();
   const button = $('#confirmAiTutorBtn');
   button.disabled = true;
-  button.textContent = '正在请教…';
+  button.textContent = tr('Asking…', '正在请教…');
   try {
     const execution = lastResult?.execution ?? lastResult;
     const result = await requestAiTutor({
       lessonId: lesson.id,
-      title: lesson.title,
-      objective: lesson.objective,
-      rules: lesson.rules,
+      title: visibleLesson.title,
+      objective: visibleLesson.objective,
+      rules: visibleLesson.rules,
       code: editor.getValue(),
       compilerMessage: formatCompiler(lastResult),
       output: execution?.output ?? ''
@@ -602,27 +631,28 @@ async function confirmAiTutor() {
     state.aiTutorUses[lesson.chapterId] = true;
     await queueSave(false);
     $('#aiConfirmDialog').close();
-    $('#aiTutorTitle').textContent = `${lesson.title} · 导师的低语`;
-    $('#aiTutorDisclaimer').textContent = 'AI只提供提示，最终通关仍以真实Clang编译和测试结果为准。';
+    $('#aiTutorTitle').textContent = tr(`${visibleLesson.title} · Mentor’s Whisper`, `${visibleLesson.title} · 导师的低语`);
+    $('#aiTutorDisclaimer').textContent = tr('AI provides hints only. Real Clang compilation and tests decide whether you pass.', 'AI只提供提示，最终通关仍以真实Clang编译和测试结果为准。');
     $('#aiTutorContent').textContent = result.content;
     $('#aiTutorDialog').showModal();
   } catch (error) {
     $('#aiConfirmDialog').close();
-    showToast('AI导师未能回应', `${error.message}；本章次数没有消耗。`, true);
+    showToast(tr('The AI Mentor Did Not Respond', 'AI导师未能回应'), tr(`${error.message}; this chapter’s use was not spent.`, `${error.message}；本章次数没有消耗。`), true);
   } finally {
     aiTutorBusy = false;
     button.disabled = false;
-    button.textContent = '确认召唤';
+    button.textContent = tr('Summon Mentor', '确认召唤');
     updateAiTutorButton();
   }
 }
 
 function skipQuest() {
   const lesson = currentLesson();
-  if (!confirm(`暂时跳过“${lesson.title}”？你可以随时从地图返回补做。`)) return;
+  const visibleLesson = shownLesson(lesson);
+  if (!confirm(tr(`Skip “${visibleLesson.title}” for now? You can return from the map at any time.`, `暂时跳过“${visibleLesson.title}”？你可以随时从地图返回补做。`))) return;
   if (!state.skipped.includes(lesson.id)) state.skipped.push(lesson.id);
   queueSave(false);
-  showToast('已标记为待补', '下一项试炼已经开放。');
+  showToast(tr('Marked for Later', '已标记为待补'), tr('The next trial is now open.', '下一项试炼已经开放。'));
   if (state.currentQuest < lessons.length - 1 && isUnlocked(state.currentQuest + 1)) openQuest(state.currentQuest + 1);
   else { renderMap(); showView($('#mapView')); }
 }
@@ -631,7 +661,7 @@ function exportProgress() {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
   const link = document.createElement('a');
   link.href = URL.createObjectURL(blob);
-  link.download = `灰烬王冠-旅程备份-${new Date().toISOString().slice(0, 10)}.json`;
+  link.download = `${tr('ashen-crown-journey', '灰烬王冠-旅程备份')}-${new Date().toISOString().slice(0, 10)}.json`;
   link.click();
   URL.revokeObjectURL(link.href);
 }
@@ -639,18 +669,33 @@ function exportProgress() {
 async function importProgress(file) {
   try {
     const imported = JSON.parse(await file.text());
-    if (imported?.version !== 2 || !Array.isArray(imported.completed)) throw new Error('这不是第二版存档。');
+    if (imported?.version !== 2 || !Array.isArray(imported.completed)) throw new Error(tr('This is not a Version 2 save file.', '这不是第二版存档。'));
     state = normalizeSave({ ...imported, started: true });
     await queueSave(false);
     $('#settingsDialog').close();
     renderMap();
-    showToast('旅程已导入', 'progress.json 已经更新。');
-  } catch (error) { showToast('无法导入', error.message, true); }
+    showToast(tr('Journey Imported', '旅程已导入'), tr('progress.json has been updated.', 'progress.json 已经更新。'));
+  } catch (error) { showToast(tr('Import Failed', '无法导入'), error.message, true); }
+}
+
+async function toggleLanguage() {
+  const previousLanguage = state.language;
+  const source = !$('#challengeView').hidden ? editor.getValue() : null;
+  state.language = previousLanguage === ZH ? EN : ZH;
+  applyStaticLanguage(state.language);
+  if (!$('#challengeView').hidden) {
+    if (source === localizeStarterCode(currentLesson().starterCode, previousLanguage)) delete state.drafts[currentLesson().id];
+    else state.drafts[currentLesson().id] = source;
+    state.inputs[currentLesson().id] = $('#stdinInput').value;
+    renderQuest();
+  } else if (!$('#mapView').hidden) renderMap();
+  else renderStart();
+  await queueSave(false);
 }
 
 $('#continueBtn').addEventListener('click', () => { renderMap(); showView($('#mapView')); });
 $('#newJourneyBtn').addEventListener('click', async () => {
-  if (state.started && !confirm('重新开始会覆盖本机 JSON 存档。确定继续吗？')) return;
+  if (state.started && !confirm(tr('Restarting will overwrite the local JSON save. Continue?', '重新开始会覆盖本机 JSON 存档。确定继续吗？'))) return;
   await startJourney(true);
 });
 $('#backToMapBtn').addEventListener('click', () => {
@@ -665,8 +710,8 @@ $('#runBtn').addEventListener('click', runCode);
 $('#submitBtn').addEventListener('click', submitCode);
 $('#answerBtn').addEventListener('click', showAnswer);
 $('#resetCodeBtn').addEventListener('click', () => {
-  if (!confirm('恢复初始代码会覆盖当前草稿，确定继续吗？')) return;
-  editor.setValue(currentLesson().starterCode);
+  if (!confirm(tr('Restoring the starter code will overwrite your draft. Continue?', '恢复初始代码会覆盖当前草稿，确定继续吗？'))) return;
+  editor.setValue(localizeStarterCode(currentLesson().starterCode, state.language));
   state.drafts[currentLesson().id] = editor.getValue();
   editor.setDiagnostics([]);
   queueSave(); lastResult = null; renderResult();
@@ -693,7 +738,7 @@ $('#applyAnswerBtn').addEventListener('click', () => {
   state.drafts[currentLesson().id] = editor.getValue();
   queueSave();
   $('#answerDialog').close();
-  showToast('答案已填入编辑器', '你仍然可以修改它，再运行一次看看结果。');
+  showToast(tr('Answer Inserted', '答案已填入编辑器'), tr('You can still edit it and run it again.', '你仍然可以修改它，再运行一次看看结果。'));
 });
 $('#settingsBtn').addEventListener('click', openSettings);
 $('#challengeSettingsBtn').addEventListener('click', openSettings);
@@ -709,15 +754,19 @@ $('#confirmAiTutorBtn').addEventListener('click', confirmAiTutor);
 $('#closeAiTutorBtn').addEventListener('click', () => $('#aiTutorDialog').close());
 $('#exportBtn').addEventListener('click', exportProgress);
 $('#importInput').addEventListener('change', event => { const file = event.target.files?.[0]; if (file) importProgress(file); });
+$$('[data-language-toggle]').forEach(button => button.addEventListener('click', toggleLanguage));
 $('#resetProgressBtn').addEventListener('click', async () => {
-  const answer = prompt('此操作无法撤销。请输入“重新启程”确认清除全部进度：');
-  if (answer !== '重新启程') return;
-  state = emptySave(); await queueSave(false); $('#settingsDialog').close(); renderStart();
+  const phrase = tr('RESET JOURNEY', '重新启程');
+  const answer = prompt(tr(`This cannot be undone. Type “${phrase}” to clear all progress:`, '此操作无法撤销。请输入“重新启程”确认清除全部进度：'));
+  if (answer !== phrase) return;
+  const language = state.language;
+  state = { ...emptySave(), language }; await queueSave(false); $('#settingsDialog').close(); renderStart();
 });
 
 try {
   state = await loadSave();
 } catch (error) {
-  showToast('无法读取本地存档', `${error.message}；已使用临时空白进度。`, true);
+  showToast(tr('Could Not Read Local Save', '无法读取本地存档'), tr(`${error.message}; using temporary blank progress.`, `${error.message}；已使用临时空白进度。`), true);
 }
+applyStaticLanguage(state.language);
 renderStart();

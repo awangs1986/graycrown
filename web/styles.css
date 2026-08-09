@@ -63,6 +63,9 @@ button, .file-label { cursor: pointer; }
 .start-view::after { content: "⚓"; position: absolute; right: 12%; bottom: 8%; color: rgba(163,227,239,.11); font-size: 220px; transform: rotate(-10deg); }
 .start-mist { position: absolute; inset: 35% -10% 0; background: radial-gradient(ellipse, rgba(215,240,242,.16), transparent 60%); filter: blur(14px); }
 .start-card { position: relative; z-index: 2; width: min(560px, calc(100vw - 36px)); padding: 42px; text-align: center; border: 1px solid rgba(255,255,255,.15); border-radius: 24px; background: rgba(6,17,29,.63); box-shadow: var(--shadow); backdrop-filter: blur(18px); }
+.language-toggle { min-width: 48px; padding: 7px 10px; border: 1px solid rgba(255,255,255,.28); border-radius: 999px; color: inherit; background: rgba(255,255,255,.09); font-weight: 800; cursor: pointer; }
+.language-toggle:hover { background: rgba(255,255,255,.18); }
+.start-language-toggle { position: absolute; z-index: 4; top: 22px; right: 24px; color: white; }
 .crown-seal { width: 70px; height: 70px; display: grid; place-items: center; margin: 0 auto 20px; border: 1px solid rgba(116,224,241,.42); border-radius: 24px; color: #8ee7f2; background: rgba(73,198,229,.12); font-size: 36px; }
 .start-card h1 { margin: 0; font: 700 clamp(44px, 7vw, 76px)/1 Georgia, "STSong", serif; letter-spacing: .04em; }
 .start-copy { max-width: 430px; margin: 22px auto; color: #c4d4e1; line-height: 1.8; }

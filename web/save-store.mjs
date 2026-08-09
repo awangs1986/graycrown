@@ -6,6 +6,7 @@ const chapterTutorUses = () => Object.fromEntries(Array.from({ length: 7 }, (_, 
 export function emptySave() {
   return {
     version: 2,
+    language: 'en',
     started: false,
     currentChapter: 0,
     currentQuest: 0,
@@ -31,6 +32,7 @@ export function normalizeSave(value) {
   return {
     ...base,
     ...value,
+    language: value.language === 'zh-CN' ? 'zh-CN' : 'en',
     completed: Array.isArray(value.completed) ? value.completed : [],
     skipped: Array.isArray(value.skipped) ? value.skipped : [],
     attempts: value.attempts && typeof value.attempts === 'object' ? value.attempts : {},

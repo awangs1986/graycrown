@@ -1,15 +1,16 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="用RPG冒险学习C语言基础。" />
-  <title>灰烬王冠 · C语言试炼</title>
+  <meta name="description" content="Learn C programming through an RPG adventure." />
+  <title>The Ashen Crown · C Trials</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <div id="app">
     <section id="startView" class="start-view view">
+      <button class="language-toggle start-language-toggle" data-language-toggle type="button" title="切换为中文">中文</button>
       <div class="start-mist"></div>
       <div class="start-card">
         <div class="crown-seal">♛</div>
@@ -33,6 +34,7 @@
         <span class="metric"><i>◆</i> <b data-gold>0</b></span>
         <span class="metric"><i>✦</i> Lv.<b data-level>1</b></span>
         <span class="metric crystal-metric" title="本章剩余真知水晶"><i>🔮</i> <b data-crystals>3</b></span>
+        <button class="language-toggle" data-language-toggle type="button" title="切换为中文">中文</button>
         <button id="settingsBtn" class="icon-btn" aria-label="设置">⚙</button>
         <span class="avatar">🧙</span>
       </header>
@@ -64,6 +66,7 @@
         <span class="metric"><i>◆</i> <b data-gold>0</b></span>
         <span class="metric"><i>✦</i> Lv.<b data-level>1</b></span>
         <span class="metric crystal-metric" title="本章剩余真知水晶"><i>🔮</i> <b data-crystals>3</b></span>
+        <button class="language-toggle" data-language-toggle type="button" title="切换为中文">中文</button>
         <button id="challengeSettingsBtn" class="icon-btn" aria-label="设置">⚙</button>
         <span class="avatar">🧙</span>
       </header>
@@ -137,7 +140,7 @@
     <p class="eyebrow">符文响应</p>
     <h2 id="completionTitle">试炼完成</h2>
     <p id="completionStory"></p>
-    <div class="reward-row"><span>✦ <b id="xpReward">20</b> 经验</span><span>◆ <b id="goldReward">10</b> 金币</span></div>
+    <div class="reward-row"><span>✦ <b id="xpReward">20</b> <i id="xpLabel">XP</i></span><span>◆ <b id="goldReward">10</b> <i id="goldLabel">Gold</i></span></div>
     <div class="dialog-actions">
       <button id="stayBtn" class="soft-btn">留在本题</button>
       <button id="nextAfterPassBtn" class="primary-btn">前往下一题 →</button>
@@ -189,9 +192,9 @@
     <section class="ai-settings-section">
       <h3>OpenAI兼容 API</h3>
       <p>API Key单独保存在本机 data/save/ai-settings.json，不会进入旅程导出文件。</p>
-      <label>API URL<input id="aiApiUrl" type="url" placeholder="https://api.example.com/v1" spellcheck="false" /></label>
-      <label>模型名称<input id="aiModel" type="text" placeholder="模型名称" spellcheck="false" /></label>
-      <label>API Key<input id="aiApiKey" type="password" placeholder="留空则保留已保存的Key；本地服务可不填" autocomplete="off" /></label>
+      <label><span>API URL</span><input id="aiApiUrl" type="url" placeholder="https://api.example.com/v1" spellcheck="false" /></label>
+      <label><span id="modelNameLabel">Model Name</span><input id="aiModel" type="text" placeholder="Model name" spellcheck="false" /></label>
+      <label><span>API Key</span><input id="aiApiKey" type="password" placeholder="Leave blank to keep the saved key" autocomplete="off" /></label>
       <div class="ai-settings-actions">
         <button id="saveAiSettingsBtn" class="soft-btn" type="button">保存AI设置</button>
         <button id="testAiSettingsBtn" class="primary-btn" type="button">测试连接</button>
