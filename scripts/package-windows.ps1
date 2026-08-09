@@ -21,6 +21,7 @@ try {
     Copy-Item -LiteralPath (Join-Path $ProjectRoot 'target\release\gray-crown-launcher.exe') -Destination (Join-Path $PackageRoot 'GrayCrown.exe')
     Copy-Item -LiteralPath (Join-Path $ProjectRoot 'data\app') -Destination (Join-Path $PackageRoot 'data\app') -Recurse
     Copy-Item -LiteralPath (Join-Path $ProjectRoot 'README.md') -Destination $PackageRoot
+    Copy-Item -LiteralPath (Join-Path $ProjectRoot 'README.zh-CN.md') -Destination $PackageRoot
     Copy-Item -LiteralPath (Join-Path $ProjectRoot 'THIRD_PARTY_NOTICES.txt') -Destination $PackageRoot
     Copy-Item -LiteralPath (Join-Path $ProjectRoot 'lesson-regression-report.md') -Destination $PackageRoot
 
