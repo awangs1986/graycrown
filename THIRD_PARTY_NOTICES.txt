@@ -1,0 +1,33 @@
+灰烬王冠 · 第三方组件说明
+========================
+
+本程序包含或使用以下开源组件：
+
+1. Wasmer JavaScript SDK (@wasmer/sdk)
+   Copyright Wasmer, Inc. and contributors
+   License: MIT
+   Source: https://github.com/wasmerio/wasmer-js
+
+2. Wasmer Runtime
+   Copyright Wasmer, Inc. and contributors
+   License: MIT
+   Source: https://github.com/wasmerio/wasmer
+
+3. clang/clang WebAssembly package and LLVM/Clang
+   LLVM Project contributors
+   License: Apache License 2.0 with LLVM Exceptions
+   Source: https://github.com/llvm/llvm-project
+   Package: https://wasmer.io/clang/clang
+
+4. CodeMirror 6 and language packages
+   Copyright Marijn Haverbeke and contributors
+   License: MIT
+   Source: https://github.com/codemirror
+
+5. Rust crates used by the launcher
+   Individual crate authors and contributors
+   Crates: tiny_http, serde, serde_json, mime_guess, percent-encoding, webbrowser, reqwest, rustls
+   License information is available from each crate's package metadata at https://crates.io/
+
+The full corresponding license texts and source repositories remain available
+from the URLs above. This notice does not alter their respective license terms.

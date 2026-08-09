@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="用RPG冒险学习C语言基础。" />
+  <title>灰烬王冠 · C语言试炼</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="app">
+    <section id="startView" class="start-view view">
+      <div class="start-mist"></div>
+      <div class="start-card">
+        <div class="crown-seal">♛</div>
+        <p class="eyebrow light">七日 C 语言冒险</p>
+        <h1>灰烬王冠</h1>
+        <p class="start-copy">七枚符文散落北境。写下真正能够运行的代码，让沉睡的王冠重新发光。</p>
+        <div id="saveSummary" class="save-summary" hidden></div>
+        <div class="start-actions">
+          <button id="continueBtn" class="primary-btn large" hidden>继续旅程</button>
+          <button id="newJourneyBtn" class="ghost-btn light-border">开始新旅程</button>
+        </div>
+        <p class="local-note">进度保存为本机 JSON 文件 · 无需登录</p>
+      </div>
+    </section>
+
+    <section id="mapView" class="map-view view" hidden>
+      <header class="topbar map-topbar">
+        <div class="brand"><span class="brand-mark">♛</span><span>灰烬王冠</span></div>
+        <span class="crumb">七符文之路</span>
+        <div class="top-spacer"></div>
+        <span class="metric"><i>◆</i> <b data-gold>0</b></span>
+        <span class="metric"><i>✦</i> Lv.<b data-level>1</b></span>
+        <span class="metric crystal-metric" title="本章剩余真知水晶"><i>🔮</i> <b data-crystals>3</b></span>
+        <button id="settingsBtn" class="icon-btn" aria-label="设置">⚙</button>
+        <span class="avatar">🧙</span>
+      </header>
+      <div class="map-scene">
+        <div class="map-heading">
+          <p id="mapRune" class="eyebrow light">第一枚符文</p>
+          <h1 id="mapChapterTitle">雾港</h1>
+          <p id="mapChapterDescription">完成20项短试炼，让沉睡的灯塔重新照亮海岸。</p>
+          <div class="chapter-progress"><span id="mapProgressBar"></span></div>
+          <strong id="mapProgressText">0 / 20</strong>
+          <div class="chapter-switcher" aria-label="章节切换">
+            <button id="prevChapterBtn" class="secondary-btn" type="button">← 上一章</button>
+            <span id="chapterCounter">第 1 / 7 章</span>
+            <button id="nextChapterBtn" class="primary-btn" type="button">下一章 →</button>
+          </div>
+        </div>
+        <div class="path" id="questPath" aria-label="雾港任务路线"></div>
+        <div class="locked-regions" id="chapterCards" aria-label="七章地图"></div>
+      </div>
+    </section>
+
+    <section id="challengeView" class="challenge-view view" hidden>
+      <header class="topbar">
+        <button id="backToMapBtn" class="icon-btn" aria-label="返回章节地图">←</button>
+        <div class="brand"><span class="brand-mark">♛</span><span>灰烬王冠</span></div>
+        <span id="challengeCrumb" class="crumb">雾港 / 任务</span>
+        <div class="top-spacer"></div>
+        <span id="saveState" class="save-state">● 草稿已保存</span>
+        <span class="metric"><i>◆</i> <b data-gold>0</b></span>
+        <span class="metric"><i>✦</i> Lv.<b data-level>1</b></span>
+        <span class="metric crystal-metric" title="本章剩余真知水晶"><i>🔮</i> <b data-crystals>3</b></span>
+        <button id="challengeSettingsBtn" class="icon-btn" aria-label="设置">⚙</button>
+        <span class="avatar">🧙</span>
+      </header>
+
+      <div class="challenge-shell">
+        <article class="quest-panel" id="questPanel">
+          <div class="quest-accent"></div>
+          <div class="quest-nav-row">
+            <button id="prevQuestBtn" class="text-btn">← 上一题</button>
+            <span id="questCounter">01 / 20</span>
+            <button id="nextQuestBtn" class="text-btn">下一题 →</button>
+          </div>
+          <p id="questEyebrow" class="eyebrow">雾港 · 任务</p>
+          <h1 id="questTitle" class="quest-title"></h1>
+          <div class="meta-row">
+            <span id="difficultyChip" class="chip"></span>
+            <span id="knowledgeChip" class="chip"></span>
+            <span id="timeChip" class="chip gold"></span>
+          </div>
+          <blockquote id="questQuote" class="quote"></blockquote>
+          <p id="questStory" class="story"></p>
+
+          <h2 class="section-title">⚔ 任务目标</h2>
+          <div id="questObjective" class="objective"></div>
+
+          <h2 class="section-title">✦ 试炼规则</h2>
+          <div id="questRules" class="rules"></div>
+
+          <h2 class="section-title">◉ 三枚启示符文</h2>
+          <div id="hintList" class="hint-list"></div>
+          <button id="skipQuestBtn" class="skip-btn" hidden>暂时跳过这项试炼</button>
+        </article>
+
+        <section class="ide-panel">
+          <div class="editor-toolbar">
+            <span class="file-tab"><span>C</span> main.c</span>
+            <span id="runtimeBadge" class="runtime-badge loading" title="本机离线 WebAssembly 编译沙箱">正在唤醒 Clang…</span>
+            <div class="top-spacer"></div>
+            <button id="fontDownBtn" class="toolbar-btn" title="缩小字号">A−</button>
+            <button id="fontUpBtn" class="toolbar-btn" title="放大字号">A＋</button>
+            <button id="resetCodeBtn" class="toolbar-btn" title="恢复初始代码">↶</button>
+          </div>
+          <div class="editor-workspace"><div id="codeEditor" class="code-editor" aria-label="C语言代码编辑器"></div></div>
+          <div class="actionbar">
+            <span id="attemptLabel" class="attempt-label">可以反复运行，不会扣除奖励</span>
+            <button id="aiTutorBtn" class="ai-tutor-btn" disabled title="连续提交错误3次后解锁">🧙 AI导师</button>
+            <button id="answerBtn" class="answer-btn" title="本章20题共3枚真知水晶">🔮 查看正确答案</button>
+            <button id="runBtn" class="soft-btn">▶ 运行代码</button>
+            <button id="submitBtn" class="primary-btn submit-btn">◆ 提交符文</button>
+          </div>
+          <details class="stdin-panel">
+            <summary>程序输入（给 scanf 使用）</summary>
+            <textarea id="stdinInput" spellcheck="false" placeholder="每行输入一个值；本章题目暂时无需填写。"></textarea>
+          </details>
+          <div class="result-panel">
+            <div class="result-tabs" role="tablist">
+              <button class="result-tab active" data-tab="console">控制台</button>
+              <button class="result-tab" data-tab="tests">测试结果</button>
+              <button class="result-tab" data-tab="compiler">语法检查</button>
+              <button id="explainCompilerBtn" class="compiler-explain-btn" type="button" hidden>✨ AI解释错误</button>
+            </div>
+            <div id="resultContent" class="result-content">等待运行程序…</div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <dialog id="completionDialog" class="completion-dialog">
+    <div class="completion-rune">◆</div>
+    <p class="eyebrow">符文响应</p>
+    <h2 id="completionTitle">试炼完成</h2>
+    <p id="completionStory"></p>
+    <div class="reward-row"><span>✦ <b id="xpReward">20</b> 经验</span><span>◆ <b id="goldReward">10</b> 金币</span></div>
+    <div class="dialog-actions">
+      <button id="stayBtn" class="soft-btn">留在本题</button>
+      <button id="nextAfterPassBtn" class="primary-btn">前往下一题 →</button>
+    </div>
+  </dialog>
+
+  <dialog id="answerDialog" class="answer-dialog">
+    <div class="answer-dialog-head"><span class="completion-rune">🔮</span><div><p class="eyebrow">真知水晶</p><h2>这枚水晶会碎掉</h2></div></div>
+    <p id="answerDialogCopy">查看完整答案会消耗1枚本章水晶，剩余水晶将在右上角显示。</p>
+    <div class="answer-code-wrap"><pre id="answerCode"></pre></div>
+    <div class="dialog-actions">
+      <button id="closeAnswerBtn" class="soft-btn">暂不查看</button>
+      <button id="applyAnswerBtn" class="primary-btn">填入编辑器</button>
+    </div>
+  </dialog>
+
+  <dialog id="answerConfirmDialog" class="answer-confirm-dialog">
+    <div class="completion-rune">🔮</div>
+    <p class="eyebrow">真知水晶</p>
+    <h2>消耗一枚水晶查看答案？</h2>
+    <p id="answerConfirmCopy">本章20题共有3枚水晶，确认后会永久消耗1枚。</p>
+    <div class="dialog-actions">
+      <button id="cancelAnswerBtn" class="soft-btn">暂不使用</button>
+      <button id="confirmAnswerBtn" class="primary-btn">消耗水晶并查看</button>
+    </div>
+  </dialog>
+
+  <dialog id="aiConfirmDialog" class="answer-confirm-dialog">
+    <div class="completion-rune">🧙</div>
+    <p class="eyebrow">AI导师</p>
+    <h2>召唤本章唯一一次导师？</h2>
+    <p id="aiConfirmCopy">AI导师每章只能使用一次。确认后会把当前题目、代码、编译信息和输出发送到你配置的API。</p>
+    <div class="dialog-actions">
+      <button id="cancelAiTutorBtn" class="soft-btn">暂不使用</button>
+      <button id="confirmAiTutorBtn" class="primary-btn">确认召唤</button>
+    </div>
+  </dialog>
+
+  <dialog id="aiTutorDialog" class="answer-dialog ai-tutor-dialog">
+    <div class="answer-dialog-head"><span class="completion-rune">🧙</span><div><p class="eyebrow">AI导师</p><h2 id="aiTutorTitle">导师的低语</h2></div></div>
+    <p id="aiTutorDisclaimer" class="ai-disclaimer">AI只提供提示，最终通关仍以真实Clang编译和测试结果为准。</p>
+    <div id="aiTutorContent" class="ai-tutor-content"></div>
+    <div class="dialog-actions"><button id="closeAiTutorBtn" class="primary-btn">我明白了</button></div>
+  </dialog>
+
+  <dialog id="settingsDialog" class="settings-dialog">
+    <h2>旅程设置</h2>
+    <p>第二版会把进度写入程序 data/save/progress.json。你也可以导出或导入一份备份。</p>
+    <section class="ai-settings-section">
+      <h3>OpenAI兼容 API</h3>
+      <p>API Key单独保存在本机 data/save/ai-settings.json，不会进入旅程导出文件。</p>
+      <label>API URL<input id="aiApiUrl" type="url" placeholder="https://api.example.com/v1" spellcheck="false" /></label>
+      <label>模型名称<input id="aiModel" type="text" placeholder="模型名称" spellcheck="false" /></label>
+      <label>API Key<input id="aiApiKey" type="password" placeholder="留空则保留已保存的Key；本地服务可不填" autocomplete="off" /></label>
+      <div class="ai-settings-actions">
+        <button id="saveAiSettingsBtn" class="soft-btn" type="button">保存AI设置</button>
+        <button id="testAiSettingsBtn" class="primary-btn" type="button">测试连接</button>
+      </div>
+      <p id="aiSettingsStatus" class="ai-settings-status">尚未读取AI设置。</p>
+    </section>
+    <div class="settings-actions">
+      <button id="exportBtn" class="soft-btn">导出旅程</button>
+      <label class="soft-btn file-label">导入旅程<input id="importInput" type="file" accept="application/json" hidden /></label>
+      <button id="resetProgressBtn" class="danger-btn">清除全部进度</button>
+      <button id="closeSettingsBtn" class="ghost-btn">关闭</button>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status"><strong id="toastTitle">提示</strong><p id="toastText"></p></div>
+
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
