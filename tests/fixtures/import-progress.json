@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "language": "en",
+  "started": true,
+  "currentChapter": 0,
+  "currentQuest": 0,
+  "completed": [],
+  "skipped": [],
+  "attempts": {},
+  "hints": {},
+  "drafts": {},
+  "inputs": {},
+  "consecutiveFailures": {},
+  "answerTokens": { "day01": 3 },
+  "answerUses": { "day01": [] },
+  "aiTutorUses": { "day01": false },
+  "xp": 0,
+  "gold": 0
+}

@@ -112,7 +112,7 @@ const textBySelector = {
   '#saveAiSettingsBtn': ['Save AI Settings','保存AI设置'],
   '#testAiSettingsBtn': ['Test Connection','测试连接'],
   '#exportBtn': ['Export Journey','导出旅程'],
-  '.file-label': ['Import Journey','导入旅程'],
+  '.file-label span': ['Import Journey','导入旅程'],
   '#resetProgressBtn': ['Clear All Progress','清除全部进度'],
   '#closeSettingsBtn': ['Close','关闭'],
   '#toastTitle': ['Notice','提示']
