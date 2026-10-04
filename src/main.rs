@@ -186,7 +186,7 @@ fn handle_request(
     if request.method() != &Method::Get && request.method() != &Method::Head {
         return respond_text(request, StatusCode(405), "Method Not Allowed", "text/plain");
     }
-    serve_static(request, web_root, &path)
+    serve_static(request, web_root, &path, port)
 }
 
 fn origin_is_local(request: &Request, port: u16) -> bool {
@@ -204,13 +204,20 @@ fn read_save(request: Request, save_path: &Path) -> io::Result<()> {
         return respond_json(
             request,
             StatusCode(200),
-            &json!({"version": 2, "started": false}),
+            &json!({"version": 3, "language": "en", "activeCourseId": "c", "courses": {}}),
         );
     }
     let bytes = fs::read(save_path)?;
-    let value: Value = serde_json::from_slice(&bytes).unwrap_or_else(|_| {
-        json!({"version": 2, "started": false, "recoveryWarning": "本地存档损坏，已返回空白进度"})
-    });
+    let value: Value = match serde_json::from_slice(&bytes) {
+        Ok(value) => value,
+        Err(_) => {
+            return respond_json(
+                request,
+                StatusCode(422),
+                &json!({"ok": false, "error": "本地存档损坏，请从备份恢复"}),
+            );
+        }
+    };
     respond_json(request, StatusCode(200), &value)
 }
 
@@ -237,11 +244,19 @@ fn write_save(mut request: Request, save_path: &Path) -> io::Result<()> {
             );
         }
     };
-    if envelope.version != 2 {
+    if envelope.version != 2 && envelope.version != 3 {
         return respond_json(
             request,
             StatusCode(400),
-            &json!({"ok": false, "error": "只接受version=2的存档"}),
+            &json!({"ok": false, "error": "只接受version=2或3的存档"}),
+        );
+    }
+
+    if envelope.version == 3 && !envelope.rest.get("courses").is_some_and(Value::is_object) {
+        return respond_json(
+            request,
+            StatusCode(400),
+            &json!({"ok": false, "error": "courses必须为对象"}),
         );
     }
 
@@ -253,14 +268,22 @@ fn write_save(mut request: Request, save_path: &Path) -> io::Result<()> {
     let backup = save_path.with_extension("json.bak");
     fs::write(&temporary, formatted)?;
     if save_path.exists() {
-        let _ = fs::copy(save_path, &backup);
+        // Keep the original single-course save even after later .bak rotations.
+        let original: Value = serde_json::from_slice(&fs::read(save_path)?)?;
+        if envelope.version == 3 && original.get("version") == Some(&json!(2)) {
+            let legacy_backup = save_path.with_extension("v2.bak.json");
+            if !legacy_backup.exists() {
+                fs::copy(save_path, &legacy_backup)?;
+            }
+        }
+        fs::copy(save_path, &backup)?;
         fs::remove_file(save_path)?;
     }
     fs::rename(&temporary, save_path)?;
     respond_json(request, StatusCode(200), &json!({"ok": true}))
 }
 
-fn serve_static(request: Request, web_root: &Path, request_path: &str) -> io::Result<()> {
+fn serve_static(request: Request, web_root: &Path, request_path: &str, port: u16) -> io::Result<()> {
     let decoded = percent_decode_str(request_path)
         .decode_utf8()
         .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "invalid URL encoding"))?;
@@ -275,7 +298,7 @@ fn serve_static(request: Request, web_root: &Path, request_path: &str) -> io::Re
     {
         return respond_text(request, StatusCode(400), "Invalid path", "text/plain");
     }
-    let file_path = web_root.join(relative);
+    let file_path = web_root.join(&relative);
     if !file_path.is_file() {
         return respond_text(request, StatusCode(404), "Not Found", "text/plain");
     }
@@ -287,6 +310,12 @@ fn serve_static(request: Request, web_root: &Path, request_path: &str) -> io::Re
     let mut response = Response::from_data(bytes).with_status_code(StatusCode(200));
     response.add_header(header("Content-Type", &mime));
     add_security_headers(&mut response);
+    if relative == Path::new("csharp/runner.worker.js") {
+        // Student code may read runtime assets, but cannot call save/AI APIs or the network.
+        response.add_header(header("Content-Security-Policy", &format!(
+            "default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; connect-src http://127.0.0.1:{port}/csharp/; worker-src 'none';"
+        )));
+    }
     request.respond(response)
 }
 

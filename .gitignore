@@ -5,3 +5,10 @@
 /dist/
 *.tmp
 .test-runtime-*/
+/runtime/**/bin/
+/runtime/**/obj/
+/runtime/**/publish/
+/web/public/csharp/_framework/
+/web/public/csharp/references.json
+/tests/csharp-reference/bin/
+/tests/csharp-reference/obj/

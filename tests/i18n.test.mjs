@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { chapters, lessons } from '../web/course.mjs';
-import { EN, ZH, localizeChapter, localizeLesson, localizeStarterCode } from '../web/i18n.mjs';
-import { emptySave, normalizeSave } from '../web/save-store.mjs';
+import { chapters, lessons } from '../web/courses/c/course.mjs';
+import { EN, ZH, localizeChapter, localizeLesson, localizeStarterCode } from '../web/courses/c/i18n.mjs';
+import { emptySave, normalizeSave } from '../web/courses/c/save-store.mjs';
 
 const chinese = /[\u3400-\u9fff]/;
 const projectRoot = fileURLToPath(new URL('..', import.meta.url));
@@ -33,8 +33,8 @@ test('all 7 chapters and 140 lessons have complete English presentation text', (
 });
 
 test('language translation keeps the import file input inside its label', () => {
-  const html = readFileSync(`${projectRoot}/web/index.html`, 'utf8');
-  const i18n = readFileSync(`${projectRoot}/web/i18n.mjs`, 'utf8');
+  const html = readFileSync(`${projectRoot}/web/courses/c/view.html`, 'utf8');
+  const i18n = readFileSync(`${projectRoot}/web/courses/c/i18n.mjs`, 'utf8');
   assert.match(html, /class="soft-btn file-label"><span>[^<]+<\/span><input id="importInput" type="file"/);
   assert.doesNotMatch(i18n, /['"]\.file-label['"]\s*:/);
   assert.match(i18n, /['"]\.file-label span['"]\s*:/);

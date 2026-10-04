@@ -2,13 +2,27 @@
 
 <p align="right"><a href="README.zh-CN.md"><kbd>🇨🇳 中文</kbd></a></p>
 
-**Gray Crown** is a story-driven quiz and coding challenge game for learning C fundamentals through an RPG adventure.
+**Gray Crown** is an offline learning application with a C adventure, a C# beginner course, and French A1.
 
 Seven runes are scattered across the North. Players travel through 7 chapters and 140 short trials. Every trial has a vivid adventure story, a clear objective, up to three hints, and a built-in C editor. When the player submits code, the game compiles and runs it inside an isolated WebAssembly sandbox, then checks whether the result is correct.
 
 The goal is not to turn a textbook into a question bank. It is to help learners understand C by making a choice, running code, reading the result, and trying again.
 
-## Gameplay
+## Course packs
+
+The home screen now provides a course shelf. The existing C adventure is an independent bundled course, with its own progress, drafts and rewards. Legacy C saves migrate automatically and retain a pre-migration backup. Export all courses from the shelf, or back up and reset only the current course from its settings.
+
+All three courses are available:
+
+| Course | Content | Goal |
+| --- | --- | --- |
+| C | Original 7 chapters, 140 trials | C syntax and programming fundamentals |
+| C# | 7 chapters, 84 exercises, real compilation and 162 input/output cases | Build a console text RPG from scratch |
+| French A1 | 8 units, 96 exercise groups, 128 vocabulary entries, 152 offline audio clips | Progressive vocabulary, sentences, grammar, listening and integrated assessments |
+
+The new courses use Chinese teaching explanations. C# accepts prefilled console input in the browser and exports source for a native .NET console project. French includes choices, typing, word ordering, dictation and reading; attributed synthetic audio supports slow playback.
+
+## C course gameplay
 
 - 7 chapters × 20 quests: 140 short C programming trials.
 - English is the default language. The first screen has a one-click switch to Chinese, and the choice is saved in the local JSON save.
@@ -32,10 +46,17 @@ Enter an OpenAI-compatible API URL, model name, and optional API key in Settings
 
 ## Run from source
 
+Development requires Node.js, Rust, Git LFS and the .NET 9 SDK. Learners using a packaged build do not need these tools.
+
 ```powershell
-npm install
-npm run dev
+dotnet workload install wasm-tools
+git lfs pull
+npm ci
+npm run build:web
+cargo run -- --data-dir ./data --no-open
 ```
+
+`npm run dev` starts the Vite frontend only; saving and AI require the Rust launcher endpoints.
 
 Build the web app and portable Windows package:
 

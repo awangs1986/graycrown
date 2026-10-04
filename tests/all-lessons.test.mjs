@@ -4,8 +4,8 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { Directory, Wasmer, init } from '@wasmer/sdk/node';
-import { lessons } from '../web/course.mjs';
-import { gradeLesson } from '../web/judge.mjs';
+import { lessons } from '../web/courses/c/course.mjs';
+import { gradeLesson } from '../web/courses/c/judge.mjs';
 import { lessonSolutions } from './lesson-solutions.mjs';
 
 test('all 140 lessons compile, run, and pass their own judge rules', {
@@ -16,7 +16,7 @@ test('all 140 lessons compile, run, and pass their own judge rules', {
   assert.equal(lessonSolutions.length, lessons.length, '每道题都必须有自动化答案');
 
   const testDir = dirname(fileURLToPath(import.meta.url));
-  const packagePath = join(testDir, '..', 'web', 'public', 'compiler', 'clang-0.160000.1.webc');
+  const packagePath = process.env.GRAY_CROWN_CLANG ?? join(testDir, '..', 'web', 'public', 'compiler', 'clang-0.160000.1.webc');
   const sdkRoot = join(testDir, '..', 'node_modules', '@wasmer', 'sdk', 'dist');
   await init({
     module: new Uint8Array(await readFile(join(sdkRoot, 'wasmer_js_bg.wasm'))),

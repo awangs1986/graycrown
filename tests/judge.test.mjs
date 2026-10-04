@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { gradeLesson } from '../web/judge.mjs';
+import { gradeLesson } from '../web/courses/c/judge.mjs';
 
 const lesson = {
   validation: {

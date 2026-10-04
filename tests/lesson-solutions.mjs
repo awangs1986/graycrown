@@ -1,1 +1,1 @@
-export { solutions as lessonSolutions } from '../web/course.mjs';
+export { solutions as lessonSolutions } from '../web/courses/c/course.mjs';

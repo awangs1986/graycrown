@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { chapters, lessons, solutions } from '../web/course.mjs';
-import { gradeLesson } from '../web/judge.mjs';
+import { chapters, lessons, solutions } from '../web/courses/c/course.mjs';
+import { gradeLesson } from '../web/courses/c/judge.mjs';
 
 test('course contains seven chapters with twenty complete lessons each', () => {
   assert.equal(chapters.length, 7);

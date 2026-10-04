@@ -105,7 +105,7 @@ const textBySelector = {
   '#confirmAiTutorBtn': ['Summon Mentor','确认召唤'],
   '#closeAiTutorBtn': ['Understood','我明白了'],
   '#settingsDialog > h2': ['Journey Settings','旅程设置'],
-  '#settingsDialog > p': ['Version 2 stores progress in data/save/progress.json. You can also export or import a backup.','第二版会把进度写入程序 data/save/progress.json。你也可以导出或导入一份备份。'],
+  '#settingsDialog > p': ['This course has its own progress in data/save/progress.json. Backups here contain only the C course.','本课程的独立进度保存在 data/save/progress.json。这里导入和导出的备份仅包含 C 课程。'],
   '.ai-settings-section h3': ['OpenAI-Compatible API','OpenAI兼容 API'],
   '#modelNameLabel': ['Model Name','模型名称'],
   '.ai-settings-section > p': ['The API key is stored separately in data/save/ai-settings.json and is never included in journey exports.','API Key单独保存在本机 data/save/ai-settings.json，不会进入旅程导出文件。'],
@@ -113,7 +113,7 @@ const textBySelector = {
   '#testAiSettingsBtn': ['Test Connection','测试连接'],
   '#exportBtn': ['Export Journey','导出旅程'],
   '.file-label span': ['Import Journey','导入旅程'],
-  '#resetProgressBtn': ['Clear All Progress','清除全部进度'],
+  '#resetProgressBtn': ['Reset C Course','重置 C 课程'],
   '#closeSettingsBtn': ['Close','关闭'],
   '#toastTitle': ['Notice','提示']
 };

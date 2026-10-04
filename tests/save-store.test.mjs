@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { emptySave, normalizeSave } from '../web/save-store.mjs';
+import { emptySave, normalizeSave } from '../web/courses/c/save-store.mjs';
 
 test('new saves use JSON schema version 2', () => {
   assert.equal(emptySave().version, 2);

@@ -1,0 +1,17 @@
+French A1 course audio
+
+Original lesson texts by the Gray Crown project. Audio is synthesized speech,
+not a recording of a live teacher. Generated with Piper using the
+fr_FR-siwis-medium voice (22,050 Hz), length_scale 1.15.
+
+Voice/model: https://huggingface.co/rhasspy/piper-voices/tree/main/fr/fr_FR/siwis/medium
+Dataset: SIWIS French Speech Synthesis Database
+Authors: Pierre-Edouard Honnet, Alexandros Lazaridis, Philip N. Garner, Junichi Yamagishi
+Source: https://datashare.ed.ac.uk/handle/10283/2353
+License indicated by model card: Creative Commons Attribution 4.0 International
+https://creativecommons.org/licenses/by/4.0/
+Changes: synthesized new utterances from original A1 lesson text, slowed to 1.15 length scale.
+
+Piper synthesis tool (build-time only): https://github.com/rhasspy/piper
+Reproduction: scripts/generate-french-audio.mjs
+The Piper executable and model are not required by learners and are not bundled.

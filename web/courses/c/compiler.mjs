@@ -39,12 +39,14 @@ export class CompilerService {
     this.pending = null;
     this.reserving = false;
     this.waiters = [];
+    this.replacementTimers = new Set();
     this.slots = [null, null, null];
     this.onStatus('loading', '正在预热 Clang 编译池…');
     this.slots.forEach((_, index) => this.replaceSlot(index));
   }
 
   replaceSlot(index) {
+    if (this.disposed) return;
     const previous = this.slots[index];
     previous?.worker.terminate();
     const slot = { index, generation: (previous?.generation ?? 0) + 1, ready: false, busy: false, worker: this.workerFactory() };
@@ -60,9 +62,11 @@ export class CompilerService {
     slot.worker.terminate();
     slot.ready = false;
     slot.busy = true;
-    setTimeout(() => {
+    const timer = setTimeout(() => {
+      this.replacementTimers.delete(timer);
       if (this.slots[slot.index] === slot) this.replaceSlot(slot.index);
     }, this.replacementDelayMs);
+    this.replacementTimers.add(timer);
   }
 
   handleMessage(slot, message) {
@@ -154,17 +158,34 @@ export class CompilerService {
   }
 
   async runJob(type, payload, timeout = COMPILE_TIMEOUT_MS) {
+    if (this.disposed) throw new Error('编译器已关闭。');
     if (this.pending || this.reserving) throw new Error('上一段代码仍在运行。');
     this.reserving = true;
     let slot;
     try { slot = await this.acquireSlot(); }
     finally { this.reserving = false; }
+    if (this.disposed) throw new Error('编译器已关闭。');
     const id = ++this.sequence;
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => this.timeout(type === 'compile-batch' ? 'batch-compiling' : 'loading'), timeout);
       this.pending = { id, resolve, reject, timer, slot };
       slot.worker.postMessage({ type, id, ...payload });
     });
+  }
+
+  dispose() {
+    this.disposed = true;
+    for (const timer of this.replacementTimers) clearTimeout(timer);
+    this.replacementTimers.clear();
+    this.rejectPending(new Error('编译器已关闭。'));
+    for (const waiter of this.waiters) {
+      clearTimeout(waiter.timer);
+      waiter.reject(new Error('编译器已关闭。'));
+    }
+    this.waiters = [];
+    for (const slot of this.slots) slot?.worker.terminate();
+    this.slots = [];
+    this.onStatus = () => {};
   }
 
   compileAndRun(source, stdin = '') {

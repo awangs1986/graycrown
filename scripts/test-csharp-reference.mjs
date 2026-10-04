@@ -1,0 +1,10 @@
+import { lessons } from '../web/courses/csharp/course.mjs';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+const file=path.join(mkdtempSync(path.join(os.tmpdir(),'graycrown-csharp-')), 'lessons.json');
+writeFileSync(file,JSON.stringify(lessons));
+const result=spawnSync(process.env.GRAY_CROWN_DOTNET||'dotnet',['run','--project','tests/csharp-reference/CourseReferenceTests.csproj','--',file],{stdio:'inherit',timeout:120000});
+if(result.error)console.error(result.error.message);
+process.exit(result.status??1);

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseClangDiagnostics } from '../web/compiler.mjs';
+import { parseClangDiagnostics } from '../web/courses/c/compiler.mjs';
 
 test('parses clang line and column diagnostics', () => {
   const diagnostics = parseClangDiagnostics("/project/main.c:4:15: error: expected ';' after expression\n");

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { consumeAnswerToken, tokenCount } from '../web/answer-store.mjs';
-import { emptySave, normalizeSave } from '../web/save-store.mjs';
+import { consumeAnswerToken, tokenCount } from '../web/courses/c/answer-store.mjs';
+import { emptySave, normalizeSave } from '../web/courses/c/save-store.mjs';
 
 test('a new chapter starts with three answer crystals', () => {
   assert.equal(tokenCount(emptySave()), 3);

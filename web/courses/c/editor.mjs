@@ -27,6 +27,7 @@ export function createEditor(parent, onChange) {
   });
 
   return {
+    destroy: () => view.destroy(),
     getValue: () => view.state.doc.toString(),
     setValue(value) {
       view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: value } });
