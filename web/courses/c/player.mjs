@@ -1,3 +1,4 @@
+import { PUBLIC_SITE } from '../../deployment.mjs';
 import { chapters, lessons, solutions, chapterStart } from './course.mjs';
 import { CompilerService } from './compiler.mjs';
 import { createEditor } from './editor.mjs';
@@ -552,6 +553,7 @@ export async function mount(root, context) {
     applyStaticLanguage(state.language, root);
     document.documentElement.lang = state.language;
     $('#settingsDialog').showModal();
+    if (PUBLIC_SITE) return;
     const status = $('#aiSettingsStatus');
     status.className = 'ai-settings-status';
     status.textContent = tr('Reading local AI settings…', '正在读取本机AI设置…');

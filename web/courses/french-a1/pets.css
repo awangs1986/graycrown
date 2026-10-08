@@ -1,0 +1,89 @@
+/* French-specific illustrated creature battles; C and C# retain their themes. */
+.adventure-course[data-theme=pets] { --gold:#ffdc84; --night:#183e39; background:#eaf2e5; color:#294b43; }
+[data-theme=pets] [hidden] { display:none !important; }
+[data-theme=pets] .learn-header { background:#204c44; border-bottom:5px solid #edc96b; }
+[data-theme=pets] .learn-header h1 { font-family:inherit; color:#fff5da; }
+[data-theme=pets] .learn-nav { background:#d5e5d2; }
+[data-theme=pets] .learn-nav button { color:#365446; background:#eff5e9; border:1px solid #91b79d; border-radius:20px; }
+[data-theme=pets] .learn-nav button.selected { background:#316b54; color:#fff9df; }
+[data-theme=pets] .learn-main h2 { color:#244e42; font-family:inherit; }
+[data-theme=pets] .learn-topic,[data-theme=pets] .learn-status { color:#587451; }
+[data-theme=pets] .adventure-prologue { background:linear-gradient(145deg,#fff9df,#edf5d9); border:2px solid #bed4a9; border-radius:32px; box-shadow:0 16px 50px #24493218; max-width:1000px; padding:32px; }
+[data-theme=pets] .adventure-prologue>.adventure-emblem { width:68px;height:68px;margin:auto;border:5px solid #3c6052;border-radius:50%;font-size:0;background:linear-gradient(#e77c58 0 45%,#3c6052 45% 55%,#fff8dc 55%);position:relative; }
+[data-theme=pets] .adventure-prologue>.adventure-emblem:after { content:'';position:absolute;left:20px;top:20px;width:18px;height:18px;border:4px solid #3c6052;border-radius:50%;background:#fff8dc; }
+[data-theme=pets] .adventure-prologue h2 { font-size:clamp(28px,5vw,44px);letter-spacing:.04em; }
+[data-theme=pets] .adventure-loop { color:#477352; }
+.pet-portrait { width:120px;aspect-ratio:1;flex-shrink:0;background-image:url('/art/french-pets/pets-atlas-v1.png');background-size:600% 400%;background-repeat:no-repeat;background-color:#fffbe8;border-radius:22%; }
+.pet-icon { width:19px;height:19px;flex-shrink:0;vertical-align:middle; }
+.pet-type { display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:14px;background:var(--type-color);color:#fff;font-size:11px;font-weight:700;line-height:1.4; }
+.pet-eyebrow { font-size:11px;letter-spacing:.13em;font-weight:800;color:#537463;text-transform:uppercase; }
+.pet-starters { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:20px 0; }
+.pet-starter { font:inherit;background:#fffdf3;border:2px solid #c8d8ba;border-radius:24px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:12px;color:#2f4c39;cursor:pointer; }
+.pet-starter .pet-portrait { width:min(100%,180px); }
+.pet-starter[aria-pressed=true] { border-color:#3b835b;box-shadow:0 0 0 3px #72a46344;background:#f4ffd9; }
+.pet-habitat { display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin:24px 0;background:#fffdf0;border:1px solid #cbdbc0;padding:18px 24px;border-radius:24px; }
+.pet-habitat-item { display:grid;grid-template-columns:64px auto;align-items:center;column-gap:10px; }
+.pet-habitat-item .pet-portrait { width:64px;grid-row:span 2; }
+.pet-habitat-item .pet-type { width:max-content; }
+.pet-habitat-item strong { font-size:13px; }
+.pet-habitat>p { font-size:12px;color:#58765d;margin-left:auto;max-width:220px;line-height:1.8; }
+[data-theme=pets] .adventure-map { background:radial-gradient(ellipse at 10% 20%,#b1d79188,transparent 65%),repeating-linear-gradient(45deg,#c8ddba22 0 30px,#91b79b22 30px 60px),#dce9cf; border:2px solid #a8c19c; }
+[data-theme=pets] .adventure-node { background:#fffdf1;color:#365340;border:2px solid #bdd0aa;min-height:240px;padding:12px 8px;gap:7px; }
+[data-theme=pets] .adventure-node:not(:disabled):hover { background:#f5ffdc; }
+[data-theme=pets] .adventure-node strong { font-size:12px; }
+[data-theme=pets] .adventure-node small { color:#546949; }
+[data-theme=pets] .adventure-node.available { border-color:#e5ab41;box-shadow:0 0 0 3px #f7d17a88; }
+[data-theme=pets] .adventure-node:disabled { opacity:.72; }
+[data-theme=pets] .adventure-node:disabled .pet-portrait { filter:saturate(.35); }
+[data-theme=pets] .adventure-orb { position:absolute;left:8px;top:8px;width:26px;height:26px;font-size:12px;z-index:1;border-width:1px;color:#fff8de; }
+.pet-node-art { width:min(100%,120px); }
+.pet-node-name { font-size:10px;font-weight:700;color:#698051; }
+[data-theme=pets] .adventure-npc { background:#fffbed;border-color:#d3ac5c; }
+[data-theme=pets] .adventure-npc strong { color:#316746; }
+[data-theme=pets] blockquote { color:#5e7457; }
+[data-theme=pets] .adventure-trial { grid-template-columns:minmax(200px,.6fr) minmax(0,2fr);gap:20px; }
+[data-theme=pets] .adventure-story { background:#f9f9e9;border-color:#c0d3af;padding:20px;font-size:14px; }
+[data-theme=pets] .adventure-story h3 { color:#3a6345; }
+[data-theme=pets] .adventure-story .adventure-emblem { color:#779556; }
+[data-theme=pets] .adventure-reward { color:#876525;background:#f1e4b7; }
+[data-theme=pets] .adventure-workbench { background:#fffcf2;border:1px solid #c9d8bc;padding:20px; }
+[data-theme=pets] .adventure-dialog { background:#f7f6e8;color:#355141;border-color:#b5caa3;width:min(1000px,94vw); }
+[data-theme=pets] .adventure-dialog h2,[data-theme=pets] .adventure-dialog summary { color:#3c674c; }
+[data-theme=pets] .learn-explanation { background:#f3f5e8;border-color:#d4debd; }
+.pet-dex { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:20px 0; }
+.pet-card { background:#fffdf0;border:1px solid #cbd8b7;border-radius:18px;padding:14px;text-align:center; }
+.pet-card .pet-portrait { width:100%;max-width:170px;margin:auto; }
+.pet-card h3 { margin:5px 0;color:#335b43; }
+.pet-card p { font-size:12px;line-height:1.8; }
+.pet-card small { color:#6e845e; }
+.pet-card.undiscovered .pet-portrait { filter:brightness(.25) saturate(0);opacity:.55; }
+.pet-capture { text-align:center;padding:16px;background:#eaf2d8;border-radius:20px; }
+.pet-capture .pet-portrait { margin:15px auto;width:200px;box-shadow:0 0 0 8px #fff8dc,0 0 35px #d6b54955; }
+.pet-battle { border:2px solid #8fae81;border-radius:22px;overflow:hidden;background:#eff3dc; }
+.pet-battle>.pet-eyebrow { background:#2f6250;color:#ffedb0;padding:12px 18px; }
+.pet-arena { min-height:340px;position:relative;background-image:url('/art/french-pets/habitats-atlas-v1.png');background-size:400% 200%;background-position:var(--habitat-x,0%) var(--habitat-y,0%);background-color:#d4e8c9;display:grid;grid-template-columns:1fr 1fr;padding:22px;gap:10px; }
+.pet-fighter { display:flex;flex-direction:column;min-width:0;position:relative; }
+.pet-fighter.rival { grid-column:2;grid-row:1;align-items:flex-end; }
+.pet-fighter.partner { grid-column:1;grid-row:1;flex-direction:column-reverse;align-items:flex-start;align-self:end;margin-top:65px; }
+.pet-battle-art { width:clamp(105px,16vw,180px);border:4px solid #fff6df;box-shadow:0 12px 0 -5px #50744733,0 8px 24px #31492e22; }
+.pet-fighter-info { padding:10px 14px;background:#fffdefef;border:2px solid #587a57;border-radius:15px 5px 15px 5px;box-shadow:3px 4px 0 #39563a33;margin:8px 0;min-width:170px;max-width:100%;display:grid;gap:5px; }
+.pet-fighter-info strong { font-size:13px;color:#304b36; }
+.pet-fighter-info .pet-type { justify-self:start;font-size:10px; }
+.pet-fighter-info progress { appearance:none;width:100%;height:9px;border:0;border-radius:8px;overflow:hidden;background:#d8dfc9; }
+.pet-fighter-info progress::-webkit-progress-bar { background:#d8dfc9; }
+.pet-fighter-info progress::-webkit-progress-value { background:#65a15a;transition:width .4s; }
+.pet-fighter-info progress::-moz-progress-bar { background:#65a15a; }
+.pet-fighter-info small { color:#526347;font:11px monospace;justify-self:end; }
+.pet-round { padding:12px 18px 0;margin:0;font-size:12px;color:#5d7849; }
+.pet-battle-log { min-height:75px;margin:0;padding:16px 18px;font-weight:700;line-height:1.8;color:#344e36; }
+.pet-battle-controls { display:flex;gap:12px;flex-wrap:wrap;margin:20px 0 10px; }
+.pet-battle-controls .pet-icon { margin-right:8px; }
+.pet-battle-help { font-size:12px;color:#6f7c56;line-height:1.8; }
+[data-theme=pets] .french-question { background:#fffef6;border:2px solid #b7cca5;border-radius:18px;margin:20px 0; }
+[data-theme=pets] .french-choice { border-color:#b9cda9;background:#f9faee; }
+[data-theme=pets] .french-choice:has(input:checked) { border-color:#558b56;background:#e4f1d2; }
+[data-theme=pets] .french-question:disabled { opacity:.7; }
+[data-theme=pets] button:focus-visible { outline-color:#dd8d37; }
+@media(max-width:1100px) { [data-theme=pets] .adventure-trial { grid-template-columns:1fr; } [data-theme=pets] .adventure-story { max-height:260px;overflow:auto; } .pet-dex { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media(max-width:600px) { .pet-starters { gap:8px; } .pet-starter { padding:9px 4px;border-radius:14px;font-size:12px; } .pet-starter .pet-type { font-size:9px;padding:3px 5px; } .pet-dex { grid-template-columns:repeat(2,minmax(0,1fr));gap:8px; } .pet-habitat { gap:12px;padding:14px; } .pet-habitat>p { margin:0;max-width:none; } .pet-arena { padding:10px;gap:5px;min-height:300px; } .pet-fighter-info { min-width:0;padding:8px;width:100%;box-sizing:border-box; } .pet-fighter-info strong { font-size:11px; } .pet-battle-art { width:110px; } [data-theme=pets] .adventure-workbench { padding:12px; } [data-theme=pets] .adventure-prologue { padding:24px 14px; } }
+@media(prefers-reduced-motion:reduce) { .pet-fighter-info progress::-webkit-progress-value { transition:none; } }

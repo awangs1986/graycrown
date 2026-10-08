@@ -1,3 +1,6 @@
+import { PUBLIC_SITE } from './deployment.mjs';
+import { readBrowserLibrary, writeBrowserLibrary } from './browser-storage.mjs';
+
 const SAVE_URL = '/api/save';
 const isRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const validId = id => typeof id === 'string' && /^[a-z][a-z0-9-]{0,63}$/.test(id) && !['constructor', 'prototype'].includes(id);
@@ -40,6 +43,10 @@ export function withCourseProgress(library, courseId, progress) {
 }
 
 export async function loadLibrary() {
+  if (PUBLIC_SITE) {
+    const value = await readBrowserLibrary();
+    return value === undefined ? { ...emptyLibrary(), language: 'zh-CN' } : normalizeLibrary(value);
+  }
   const response = await fetch(SAVE_URL, { cache: 'no-store' });
   if (!response.ok) throw new Error(`读取存档失败（HTTP ${response.status}）`);
   return normalizeLibrary(await response.json());
@@ -47,6 +54,10 @@ export async function loadLibrary() {
 
 export async function writeLibrary(value) {
   const snapshot = normalizeLibrary(value);
+  if (PUBLIC_SITE) {
+    await writeBrowserLibrary(snapshot);
+    return snapshot;
+  }
   const response = await fetch(SAVE_URL, {
     method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(snapshot)
   });

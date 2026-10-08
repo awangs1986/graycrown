@@ -8,7 +8,11 @@ export function normalizeProgress(value, lessons, language = 'zh-CN') {
     currentLessonId: ids.has(value?.currentLessonId) ? value.currentLessonId : lessons[0].id,
     completed: [...new Set((Array.isArray(value?.completed) ? value.completed : []).filter(id => ids.has(id)))],
     drafts: map('drafts'), inputs: map('inputs'), responses: map('responses'), attempts: map('attempts'),
+    battles: map('battles'), companionId: typeof value?.companionId === 'string' ? value.companionId.slice(0,32) : 'pet-0',
     scores: map('scores'), assisted: map('assisted'), hints: map('hints'),
+    answerReveals: [...new Set((Array.isArray(value?.answerReveals) ? value.answerReveals : []).filter(id => ids.has(id)))],
+    consecutiveFailures: map('consecutiveFailures'),
+    mapChapter: Number.isInteger(value?.mapChapter) && value.mapChapter >= 0 ? Math.min(value.mapChapter, lessons.at(-1).chapterIndex) : 0,
     tutorUses: record(value?.tutorUses), updatedAt: value?.updatedAt ?? null
   };
 }
@@ -33,5 +37,6 @@ export function createProgress(context, lessons, report) {
   };
 }
 export function unlocked(lessons, state, index) {
-  return index === 0 || state.completed.includes(lessons[index]?.id) || state.completed.includes(lessons[index - 1]?.id);
+  if (!lessons[index]) return false;
+  return state.completed.includes(lessons[index].id) || lessons.slice(0, index).every(lesson => state.completed.includes(lesson.id));
 }

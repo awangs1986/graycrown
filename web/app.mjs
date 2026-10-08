@@ -1,4 +1,5 @@
 import { courses, getCourse, localized } from './course-registry.mjs';
+import { PUBLIC_SITE } from './deployment.mjs';
 import { emptyLibrary, loadLibrary, normalizeLibrary, withCourseProgress, writeLibrary } from './save-store.mjs';
 
 const $ = selector => document.querySelector(selector);
@@ -30,7 +31,10 @@ function renderLibrary() {
   $('#libraryLanguage').textContent = tr('中文', 'English');
   $('#libraryEyebrow').textContent = tr('YOUR LEARNING ADVENTURES', '开启你的学习旅程');
   $('#libraryTitle').textContent = tr('Choose your course', '选择一门课程');
-  $('#libraryDescription').textContent = tr('Each course has its own journey, drafts and progress.', '每门课程拥有独立的旅程、草稿和学习进度。');
+  $('#libraryDescription').textContent = PUBLIC_SITE
+    ? tr('Progress is saved in this browser. Export a backup before clearing browser data or changing devices. AI mentor is not available on this public site.', '进度保存在当前浏览器。清理浏览器数据或更换设备前，请导出备份。公开网页版暂不提供 AI 导师。')
+    : tr('Each course has its own journey, drafts and progress.', '每门课程拥有独立的旅程、草稿和学习进度。');
+  document.body.classList.toggle('public-learning-site', PUBLIC_SITE);
   $('#exportLibrary').textContent = tr('Export all progress', '导出全部课程进度');
   $('#importLibraryLabel').textContent = tr('Import backup', '导入备份');
   $('#courseCards').replaceChildren(...courses.map(course => {

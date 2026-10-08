@@ -1,4 +1,7 @@
+import { PUBLIC_SITE } from './deployment.mjs';
+
 async function requestJson(url, options = {}) {
+  if (PUBLIC_SITE) throw new Error('公开网页版暂不提供 AI 导师；课程、编译和判题均可直接使用。');
   const response = await fetch(url, { cache: 'no-store', ...options });
   const value = await response.json().catch(() => ({}));
   if (!response.ok || !value.ok) throw new Error(value.error || `请求失败（HTTP ${response.status}）`);
