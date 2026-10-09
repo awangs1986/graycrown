@@ -8,6 +8,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import { lessons as csLessons } from '../web/courses/csharp/course.mjs';
 import { lessons as frLessons } from '../web/courses/french-a1/course.mjs';
+import { lessons as enLessons } from '../web/courses/english-nce/course.mjs';
 import { gradeCode } from '../web/courses/csharp/judge.mjs';
 
 const root=process.cwd();
@@ -34,7 +35,7 @@ try{
   await page.goto(url);await page.locator('.course-card').first().waitFor();
   assert.equal(await page.locator('.course-card button:disabled').count(),0);
   assert.ok(!requests.some(value=>value.includes('/csharp/')));
-  await page.screenshot({path:path.join(evidence,'01-courses.png'),fullPage:true});pass('Three available courses; no eager compiler load.');
+  await page.screenshot({path:path.join(evidence,'01-courses.png'),fullPage:true});pass('Four available courses; no eager compiler load.');
 
   // Reuse the worker for reference regression only. Production uses a fresh worker per submission.
   await page.evaluate(()=>{
@@ -91,45 +92,87 @@ var post = type.GetMethod("PostAsync", new[] {typeof(string), http.GetType("Syst
   }
   pass('Submitted C# reflection/HttpClient request to save API is blocked by worker CSP.');
 
-  // Student workflow: edit, submit, unlock and return with saved drafts.
-  await page.locator('.course-card button').nth(1).click();await page.locator('.learn-editor .cm-content').waitFor();
-  await page.locator('.learn-editor .cm-content').fill(csLessons[0].solution);
-  await page.getByRole('button',{name:'提交全部测试',exact:true}).click();
-  await page.locator('.learn-result.success').filter({hasText:'本题通过'}).waitFor({timeout:90000});
-  await page.screenshot({path:path.join(evidence,'02-csharp.png'),fullPage:true});
-  await page.getByRole('button',{name:'下一题 →',exact:true}).click();
-  await page.locator('.learn-main h2').filter({hasText:csLessons[1].title}).waitFor();
-  await page.locator('.learn-editor .cm-content').fill('// retained C# draft');
-  await page.locator('#backToCourses').click();await page.locator('#library').waitFor({state:'visible'});pass('C# UI compiles, grades, unlocks next lesson and saves draft on exit.');
+  // Every course opens on its RPG prologue; the map shows the selected region's quests.
+  async function enterLesson(courseId,lessonId){
+    await page.locator(`.course-card[data-course-id="${courseId}"] button`).click();await page.locator('.adventure-prologue').waitFor();
+    await page.getByRole('button',{name:/踏上旅途|继续远征/}).click();await page.locator('.adventure-map').waitFor();
+    await page.locator(`.adventure-node[data-lesson-id="${lessonId}"]`).click();
+  }
+  async function backToLibrary(){await page.locator('#backToCourses').click();await page.locator('#library').waitFor({state:'visible'});}
+  // Answers each round of a choice/text battle (French and English share the turn rules).
+  async function fightRounds(lesson,attack,next){
+    for(const [index,question] of lesson.questions.entries()){
+      const field=page.locator(`[data-question-id="${question.id}"]`);
+      if(question.type==='choice')await field.getByRole('radio',{name:question.answers[0],exact:true}).check();
+      else if(question.type==='ordering')for(const word of question.answers[0].replace(/\s*[.!?]$/,'').split(' '))await field.locator('.word-bank button:not(:disabled)',{hasText:new RegExp(`^${word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}$`)}).first().click();
+      else await field.locator('input[type=text]').fill(question.answers[0]);
+      await page.getByRole('button',{name:attack}).click();await field.locator('.question-feedback.correct').waitFor({state:'attached'});
+      if(index<lesson.questions.length-1)await page.getByRole('button',{name:next}).click();
+    }
+  }
+  const putSave=async value=>{await fetch(url+'api/save',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(value)});await page.reload();await page.locator('.course-card').first().waitFor();};
 
-  await page.locator('.course-card button').nth(2).click();await page.locator('.french-question').first().waitFor();
+  // Student workflow: edit, submit, unlock and return with saved drafts.
+  await enterLesson('csharp',csLessons[0].id);await page.locator('.learn-editor .cm-content').waitFor();
+  await page.locator('.learn-editor .cm-content').fill(csLessons[0].solution);
+  await page.getByRole('button',{name:'◆ 提交符文试炼',exact:true}).click();
+  await page.locator('.learn-result.success').waitFor({timeout:90000});
+  await page.screenshot({path:path.join(evidence,'02-csharp.png'),fullPage:true});
+  await page.locator('.adventure-dialog').getByRole('button',{name:'继续旅途 →'}).click();
+  await page.locator('.learn-editor .cm-content').waitFor();
+  await page.locator('.learn-editor .cm-content').fill('// retained C# draft');
+  await backToLibrary();pass('C# UI compiles, grades, unlocks next lesson and saves draft on exit.');
+
   const frFirst=frLessons[0];
-  for(const question of frFirst.questions)await page.locator(`[data-question-id="${question.id}"]`).getByRole('radio',{name:question.answers[0],exact:true}).check();
-  await page.getByRole('button',{name:'提交答案',exact:true}).click();
-  await page.locator('.learn-result.success').waitFor();
+  await enterLesson('french-a1',frFirst.id);await page.locator('.french-question').first().waitFor();
+  await fightRounds(frFirst,/发动 ·/,'下一回合 →');
+  await page.getByRole('button',{name:/收服/}).click();await page.locator('.adventure-dialog').waitFor();
   await page.screenshot({path:path.join(evidence,'03-french.png'),fullPage:true});
-  await page.locator('#backToCourses').click();await page.locator('#library').waitFor({state:'visible'});
+  await page.locator('.adventure-dialog').getByRole('button',{name:'关闭'}).click();
+  await backToLibrary();
   let save=JSON.parse(await readFile(path.join(evidence,'save/progress.json'),'utf8'));
   assert.equal(save.courses.c.gold,17);assert.equal(save.courses.c.drafts['D1-Q01'],'legacy C draft');
   assert.equal(save.courses.csharp.drafts[csLessons[1].id],'// retained C# draft');assert.ok(save.courses['french-a1'].completed.includes(frFirst.id));
-  pass('French first unit passes; C, C# and French saves remain independent.');
+  pass('French first battle passes; C, C# and French saves remain independent.');
+
+  const enFirst=enLessons[0];
+  await enterLesson('english-nce',enFirst.id);await page.locator('.english-question').first().waitFor();
+  assert.ok(await page.locator('.english-question svg.comic-panel').count()===enFirst.questions.length);
+  assert.ok(await page.locator('.comic-arena svg.comic-panel').count()===1);
+  await fightRounds(enFirst,/发动 ·/,'下一格 →');
+  await page.getByRole('button',{name:/收录这一页漫画/}).click();await page.locator('.adventure-dialog .comic-victory').waitFor();
+  await page.screenshot({path:path.join(evidence,'03b-english.png'),fullPage:true});
+  await page.locator('.adventure-dialog').getByRole('button',{name:'关闭'}).click();await backToLibrary();
+  save=JSON.parse(await readFile(path.join(evidence,'save/progress.json'),'utf8'));
+  assert.deepEqual(save.courses['english-nce'].completed,[enFirst.id]);assert.ok(save.courses['french-a1'].completed.includes(frFirst.id));
+  pass('English comic battle passes with one illustration per question; saves stay independent.');
 
   // Fixture unlocks prerequisites only, so audio, spelling and graduation can be exercised directly.
   const dictation=frLessons.findIndex(l=>l.key==='dictation');
-  save.courses['french-a1'].completed=frLessons.slice(0,dictation).map(l=>l.id);save.courses['french-a1'].currentLessonId=frLessons[dictation].id;
-  save.courses.csharp.completed=csLessons.slice(0,-1).map(l=>l.id);save.courses.csharp.currentLessonId=csLessons.at(-1).id;
-  await fetch(url+'api/save',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(save)});
-  await page.reload();await page.locator('.course-card button').nth(2).click();await page.locator('audio').waitFor();
-  const played=await page.locator('audio').evaluate(async audio=>{await audio.play();await new Promise(resolve=>setTimeout(resolve,300));return {duration:audio.duration,time:audio.currentTime,ready:audio.readyState};});
-  assert.ok(played.duration>0&&played.time>0&&played.ready>=2);await page.locator('audio').evaluate(audio=>audio.pause());
-  await page.locator('.french-answer').fill('wrong');await page.getByRole('button',{name:'提交答案',exact:true}).click();await page.locator('.learn-result.error').waitFor();
-  await page.locator('.french-answer').fill(frLessons[dictation].questions[0].answers[0]);await page.getByRole('button',{name:'提交答案',exact:true}).click();await page.locator('.learn-result.success').waitFor();
+  save.courses['french-a1'].completed=frLessons.slice(0,dictation).map(l=>l.id);save.courses['french-a1'].currentLessonId=frLessons[dictation].id;save.courses['french-a1'].mapChapter=frLessons[dictation].chapterIndex;
+  save.courses.csharp.completed=csLessons.slice(0,-1).map(l=>l.id);save.courses.csharp.currentLessonId=csLessons.at(-1).id;save.courses.csharp.mapChapter=csLessons.at(-1).chapterIndex;
+  const enDictation=enLessons.findIndex(l=>l.id==='en2-03-10');
+  save.courses['english-nce'].completed=enLessons.slice(0,enDictation).map(l=>l.id);save.courses['english-nce'].currentLessonId=enLessons[enDictation].id;save.courses['english-nce'].mapChapter=enLessons[enDictation].chapterIndex;
+  await putSave(save);
+  await enterLesson('french-a1',frLessons[dictation].id);await page.locator('audio').waitFor();
+  const playAudio=()=>page.locator('audio').first().evaluate(async audio=>{await audio.play();await new Promise(resolve=>setTimeout(resolve,300));const value={duration:audio.duration,time:audio.currentTime,ready:audio.readyState};audio.pause();return value;});
+  let played=await playAudio();assert.ok(played.duration>0&&played.time>0&&played.ready>=2);
+  const frField=page.locator(`[data-question-id="${frLessons[dictation].questions[0].id}"]`);
+  await frField.locator('input[type=text]').fill('wrong');await page.getByRole('button',{name:/发动 ·/}).click();await page.locator('.pet-battle-log').filter({hasText:'反击'}).waitFor();
+  await frField.locator('input[type=text]').fill(frLessons[dictation].questions[0].answers[0]);await page.getByRole('button',{name:/发动 ·/}).click();await frField.locator('.question-feedback.correct').waitFor({state:'attached'});
   await page.screenshot({path:path.join(evidence,'04-listening.png'),fullPage:true});
-  await page.locator('#backToCourses').click();await page.locator('#library').waitFor({state:'visible'});pass('Offline French audio plays; wrong dictation rejected and corrected answer passes.');
-  await page.locator('.course-card button').nth(1).click();await page.locator('.learn-editor .cm-content').fill(csLessons.at(-1).solution);
-  await page.getByRole('button',{name:'提交全部测试',exact:true}).click();await page.locator('.learn-result.success').filter({hasText:'本题通过'}).waitFor({timeout:90000});
+  await backToLibrary();pass('Offline French audio plays; wrong dictation rejected and corrected answer passes.');
+  await enterLesson('english-nce',enLessons[enDictation].id);await page.locator('audio').waitFor();
+  played=await playAudio();assert.ok(played.duration>0&&played.time>0&&played.ready>=2);
+  const enField=page.locator(`[data-question-id="${enLessons[enDictation].questions[0].id}"]`);
+  await enField.locator('input[type=text]').fill('It rained.');await page.getByRole('button',{name:/发动 ·/}).click();await page.locator('.comic-log').filter({hasText:'反击'}).waitFor();
+  await enField.locator('input[type=text]').fill('it was raining hard all night');await page.getByRole('button',{name:/发动 ·/}).click();await enField.locator('.question-feedback.correct').waitFor({state:'attached'});
+  await backToLibrary();pass('Offline English MP3 plays; wrong dictation rejected, typography-insensitive answer passes.');
+  await enterLesson('csharp',csLessons.at(-1).id);await page.locator('.learn-editor .cm-content').fill(csLessons.at(-1).solution);
+  await page.getByRole('button',{name:'◆ 提交符文试炼',exact:true}).click();await page.locator('.learn-result.success').waitFor({timeout:90000});
   await page.screenshot({path:path.join(evidence,'05-rpg.png'),fullPage:true});
-  await page.locator('#backToCourses').click();await page.locator('#library').waitFor({state:'visible'});pass('Graduation RPG passes all seven paths through the actual course UI.');
+  await page.locator('.adventure-dialog').getByRole('button',{name:'关闭'}).click();
+  await backToLibrary();pass('Graduation RPG passes all seven paths through the actual course UI.');
   await page.setViewportSize({width:390,height:844});await page.screenshot({path:path.join(evidence,'06-mobile.png'),fullPage:true});
   assert.deepEqual(errors,[]);pass('No uncaught browser errors.');
 }catch(error){reports.push('FAIL '+error.stack);console.error(error);process.exitCode=1;}

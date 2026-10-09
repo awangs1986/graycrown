@@ -2,7 +2,7 @@
 
 <p align="right"><a href="README.zh-CN.md"><kbd>🇨🇳 中文</kbd></a></p>
 
-**Gray Crown** is an offline learning application with a C adventure, a C# beginner course, and French A1.
+**Gray Crown** is an offline learning application with a C adventure, a C# beginner course, French A1, and an English comic RPG aligned to the New Concept English Books 1–2 syllabus.
 
 Seven runes are scattered across the North. Players travel through 7 chapters and 140 short trials. Every trial has a vivid adventure story, a clear objective, up to three hints, and a built-in C editor. When the player submits code, the game compiles and runs it inside an isolated WebAssembly sandbox, then checks whether the result is correct.
 
@@ -12,15 +12,16 @@ The goal is not to turn a textbook into a question bank. It is to help learners 
 
 The home screen now provides a course shelf. The existing C adventure is an independent bundled course, with its own progress, drafts and rewards. Legacy C saves migrate automatically and retain a pre-migration backup. Export all courses from the shelf, or back up and reset only the current course from its settings.
 
-All three courses are available:
+All four courses are available:
 
 | Course | Content | Goal |
 | --- | --- | --- |
 | C | Original 7 chapters, 140 trials | C syntax and programming fundamentals |
 | C# | 8 chapters, 96 exercises, real compilation and 189 input/output cases | Build a console text RPG from scratch, step by step |
 | French A1 | 12 units (alphabet → travel), 156 exercises, 192 vocabulary entries, 228 offline audio clips | Progressive vocabulary, sentences, grammar, listening and unit tests with fresh items |
+| English · Comic City (NCE 1–2 syllabus) | 25 units (15 Book-1-aligned + 10 Book-2-aligned), 325 quests, 250 vocabulary entries, 325 offline MP3 clips, one original comic panel per question | Original dialogues/stories following the NCE grammar sequence; contraction- and UK/US-spelling-tolerant grading |
 
-The new courses use Chinese teaching explanations. C# accepts prefilled console input in the browser and exports source for a native .NET console project. French includes choices, typing, word ordering, dictation and reading; attributed synthetic audio supports slow playback. Course content credits: [web/courses/french-a1/CREDITS.md](web/courses/french-a1/CREDITS.md).
+The new courses use Chinese teaching explanations. C# accepts prefilled console input in the browser and exports source for a native .NET console project. French includes choices, typing, word ordering, dictation and reading; attributed synthetic audio supports slow playback. Course content credits: [web/courses/french-a1/CREDITS.md](web/courses/french-a1/CREDITS.md), [web/courses/english-nce/CREDITS.md](web/courses/english-nce/CREDITS.md) (aligned to the NCE syllabus, original content).
 
 ## C course gameplay
 
@@ -78,6 +79,10 @@ See [LICENSE](LICENSE).
 - **法语 · 晨钟之旅 A1**：扮演巡路信使，穿越十二个区域，在 156 组委托中学习问候、身份、家庭、日常、餐饮、问路、喜好与旅行。词汇、句子、语法和离线听力共同推动剧情。
 - 两门课均包含开场故事、NPC 对话、地图解锁、守关试炼、经验/等级、金币、区域遗物、旅途日志及每区域三枚真知水晶。
 - 已有课程存档可继续使用；重温已完成任务不会重复领取奖励。
+
+### 英语 · 漫画城大冒险（新概念 1–2 册大纲）
+
+对齐《新概念英语》第一、二册语法与话题顺序的原创英语课程：第一册对应 15 个街区（Is this your…? → 比较级），第二册对应 10 个故事海岸区域（叙事过去时 → 情态推测）。共 325 格漫画任务，含词汇、原创对话与小故事、语法、中译英（多种正确答案）、听力与听写。不使用宝可梦，所有插图由 `art.mjs` 里的统一漫画风 SVG 组件（固定主角团 + 日常场景 + 道具）按题目内容自动组合；回合对战、经验、金币、遗物与漫画册收集保持 RPG 设计。内容声明：仅对齐大纲，课文与练习均为原创，见 [CREDITS](web/courses/english-nce/CREDITS.md)。
 
 ### 法语宠物联盟
 

@@ -22,12 +22,17 @@
 .course-card[data-course-id="c"] { --card-accent: #f2c66b; --card-accent-2: #e58f3a; }
 .course-card[data-course-id="csharp"] { --card-accent: #b9a6ff; --card-accent-2: #6f55d6; }
 .course-card[data-course-id="french-a1"] { --card-accent: #7f9ef0; --card-accent-2: #e06a6c; }
+.course-card[data-course-id="english-nce"] { --card-accent: #ffd23f; --card-accent-2: #e5484d; }
 .course-card-head { display: flex; align-items: center; justify-content: space-between; }
 .course-emblem { width: 52px; height: 52px; display: grid; place-items: center; border-radius: 15px; font: 800 20px/1 Consolas, "Cascadia Code", monospace;
   color: #0d1823; background: linear-gradient(140deg, var(--card-accent), var(--card-accent-2)); box-shadow: 0 10px 24px rgba(0,0,0,.25); }
 .course-card[data-course-id="c"] .course-emblem::before { content: "C"; }
 .course-card[data-course-id="csharp"] .course-emblem::before { content: "C#"; }
 .course-card[data-course-id="french-a1"] .course-emblem::before { content: "Fr"; font-family: Georgia, serif; font-style: italic; }
+.course-card[data-course-id="english-nce"] .course-emblem::before { content: "En"; font-family: 'Comic Neue', 'Comic Sans MS', 'Chalkboard SE', sans-serif; font-weight: 900; }
+.course-card[data-course-id="english-nce"] { border: 3px solid #ffd23f; box-shadow: 6px 6px 0 #e5484d; border-radius: 16px 16px 16px 4px; background-image: radial-gradient(circle, rgba(255,210,63,.12) 1.2px, transparent 1.5px); background-size: 10px 10px; }
+.course-card[data-course-id="english-nce"] .course-emblem { border: 3px solid #1d1a26; color: #1d1a26; transform: rotate(-6deg); }
+.course-card[data-course-id="english-nce"] h2 { font-family: 'Comic Neue', 'Comic Sans MS', 'Chalkboard SE', sans-serif; font-weight: 900; }
 .course-badge { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 99px; color: var(--shelf-muted); border: 1px solid var(--shelf-border); }
 .course-badge.started { color: #0f2a1f; background: #8fe0b5; border-color: transparent; }
 .course-card h2 { font-size: 22px; margin: 4px 0 0; color: #fff; letter-spacing: -.01em; }

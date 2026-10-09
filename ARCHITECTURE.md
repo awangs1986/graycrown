@@ -9,7 +9,7 @@
 - `web/save-store.mjs`：版本 3 存档、旧存档迁移、按课程 ID 更新进度。主应用不解释题型、章节或课程内部进度。
 - `web/courses/c/manifest.mjs`：C 课程的稳定 ID、版本、双语名称和简介、题型、播放器加载函数。
 - `web/courses/c/`：完整 C 课程包，拥有题库、参考答案、翻译、界面、编辑器、编译沙箱、判题和课程进度规则。
-- `web/ai-service.mjs`：公共 AI 请求传输；Rust 根据受信任的 `courseId`（`c`、`csharp`、`french-a1`）选择导师上下文；省略 ID 的旧请求仍使用 C 导师。
+- `web/ai-service.mjs`：公共 AI 请求传输；Rust 根据受信任的 `courseId`（`c`、`csharp`、`french-a1`、`english-nce`）选择导师上下文；省略 ID 的旧请求仍使用 C 导师。
 
 主应用不会导入 C 题库、编辑器或编译器。点击进入 C 课程才动态加载播放器；返回课程首页前等待保存，保存失败则保留当前界面；退出后销毁编辑器、编译 worker 和计时器。
 
@@ -46,7 +46,8 @@ export async function mount(root, context) {
   "courses": {
     "c": { "version": 2, "started": false },
     "csharp": { "version": 1 },
-    "french-a1": { "version": 1 }
+    "french-a1": { "version": 1 },
+    "english-nce": { "version": 1 }
   }
 }
 ```
@@ -72,6 +73,8 @@ C# 和法语使用内部 v1 进度，记录当前题目、通关列表、作答�
 ## 法语 A1 课程与音频
 
 `web/courses/french-a1/` 包含 12 单元、156 个练习、192 项词汇：入门（字母、拼读、数字）→ 问候 → 身份与疑问句 → 家庭 → 日常 → 时间与作息 → 餐饮 → 城市与住房 → 喜好、天气与衣着 → 爱好与邀请 → 身体与健康 → 旅行与计划。题型包含选择、填空、排序、听力理解、听写、阅读及综合测试。每单元 13 个练习，含 6 道以上不重复的语法题；章节测试和毕业测试使用练习中没出现过的新题（毕业测试含 14 小题）。翻译题可接受多种正确表达（`answers` 中任一项或可选 `alternates`）。首版 8 个单元的练习保留原位置 ID（如 `fr02-08`），新增练习使用语义 ID（如 `fr02-drill`、`fr-health-exam`）。课程教学说明采用中文；内容来源见 `CREDITS.md`。
+
+`web/courses/english-nce/` 是对齐《新概念英语》第一、二册语法大纲的原创英语课程：25 单元（`en1-01`…`en1-15` 对应第一册，`en2-01`…`en2-10` 对应第二册）、325 个练习、250 项词汇、325 段离线 MP3（`web/public/audio/en`，`scripts/generate-english-audio.mjs` 生成）。课程 ID 为显式固定格式 `<单元>-<题型编号>`（如 `en1-01-01` 认识新词、`en1-01-13` Boss 综合测试），题型编号由 `LESSON_NUMBERS` 固定，不依赖数组位置。`judge.mjs` 比较时展开缩写（I'm = I am）、兼容英美拼写；`art.mjs` 是统一漫画风 SVG 组件库（地点、固定角色、日常道具），`course.mjs` 根据每道题的英文内容自动选择场景与道具，为每道题生成一幅插图；`battle.mjs` 沿用回合规则，对手是原创捣蛋鬼 Muddle 先生，收集物为“漫画册”页面。不使用任何宝可梦或第三方角色。内容声明见 `CREDITS.md`。
 
 答案归一化接受大小写、常见标点、空格、弯引号及 œ/oe 等差异，但保留影响法语含义的重音差异。音频原文和参考答案作为学习辅助，使用情况计入进度。
 
