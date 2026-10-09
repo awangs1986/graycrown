@@ -23,16 +23,19 @@ export function downloadFile(filename, value, type = 'text/plain') {
 
 export function createCoursePlayer(root, context, course, renderExercise) {
   root.innerHTML = `<section class="learning-course">
-    <header class="learn-header"><div><h1></h1><p class="learn-subtitle"></p><div class="learn-progress"></div></div><div class="learn-tools"></div></header>
+    <header class="learn-header"><div class="learn-heading"><h1></h1><p class="learn-subtitle"></p>
+      <div class="learn-progress-row"><div class="learn-meter" role="progressbar" aria-label="课程进度" aria-valuemin="0" aria-valuemax="100"><span></span></div><span class="learn-progress"></span></div></div>
+      <div class="learn-tools"></div></header>
     <div class="learn-layout"><nav class="learn-nav" aria-label="课程章节"></nav><main class="learn-main"></main></div>
     <dialog class="learn-dialog"><h2>AI 导师设置</h2><form method="dialog"><button class="ghost-btn">关闭</button></form><div class="ai-form"></div></dialog>
   </section>`;
   const $ = selector => root.querySelector(selector);
+  if (course.theme) $('.learning-course').dataset.theme = course.theme;
   $('h1').textContent = course.title;
   $('.learn-subtitle').textContent = course.subtitle;
   let busy = false, cleanup = () => {}, disposed = false;
   const status = element('p', '', 'learn-status'); status.setAttribute('role', 'status');
-  const report = error => { status.textContent = error.message; status.style.color = '#a13524'; };
+  const report = error => { status.textContent = error.message; status.classList.add('error'); };
   const progress = createProgress(context, course.lessons, report);
   const current = () => course.lessons.find(lesson => lesson.id === progress.state.currentLessonId) ?? course.lessons[0];
   const ui = {
@@ -43,7 +46,7 @@ export function createCoursePlayer(root, context, course, renderExercise) {
       busy = value;
       root.querySelectorAll('[data-lock-while-busy]').forEach(node => { node.disabled = value; });
     },
-    notify(text) { status.textContent = text; status.style.color = ''; }, report,
+    notify(text) { status.textContent = text; status.classList.remove('error'); }, report,
     save() { progress.schedule(); },
     async record(passed, score) {
       const lesson = current();
@@ -109,14 +112,22 @@ export function createCoursePlayer(root, context, course, renderExercise) {
   settings.dataset.lockWhileBusy='';tools.append(settings);
   function renderNav() {
     const state=progress.state;
-    $('.learn-progress').textContent=`已完成 ${state.completed.length} / ${course.lessons.length} · ${state.completed.length===course.lessons.length?'课程已完成！':'循序渐进，随时回来复习'}`;
-    $('.learn-nav').replaceChildren(...course.chapters.map(chapter=>{
+    const done=state.completed.length,total=course.lessons.length,percent=Math.round(done/total*100);
+    $('.learn-progress').textContent=`已完成 ${done} / ${total}${done===total?' · 课程已完成！':''}`;
+    $('.learn-meter').setAttribute('aria-valuenow',String(percent));$('.learn-meter > span').style.width=`${percent}%`;
+    $('.learn-nav').replaceChildren(...course.chapters.map((chapter,chapterIndex)=>{
       const details=element('details');details.open=chapter.id===current().chapterId;
-      details.append(element('summary',`${chapter.title} · ${chapter.lessons.filter(l=>state.completed.includes(l.id)).length}/${chapter.lessons.length}`));
+      const finished=chapter.lessons.filter(l=>state.completed.includes(l.id)).length;
+      const summary=element('summary'),name=element('span',`${chapterIndex+1}. ${chapter.title}`,'nav-chapter-title');
+      if(chapter.subtitle??chapter.goal)name.append(element('small',chapter.subtitle??chapter.goal));
+      summary.append(name,element('span',`${finished}/${chapter.lessons.length}`,`nav-count${finished===chapter.lessons.length?' complete':''}`));details.append(summary);
       chapter.lessons.forEach(lesson=>{
-        const index=course.lessons.indexOf(lesson);
-        const node=button(`${state.completed.includes(lesson.id)?'✓ ':''}${lesson.localIndex+1}. ${lesson.title}`,()=>go(index),'');
-        node.classList.toggle('selected',lesson.id===current().id);node.disabled=!unlocked(course.lessons,state,index);node.dataset.lessonId=lesson.id;
+        const index=course.lessons.indexOf(lesson),complete=state.completed.includes(lesson.id),open=unlocked(course.lessons,state,index);
+        const node=button('',()=>go(index),complete?'done':'');
+        node.append(element('span',complete?'✓':String(lesson.localIndex+1),'nav-dot'),element('span',lesson.title));
+        node.setAttribute('aria-label',`${lesson.localIndex+1}. ${lesson.title}${complete?'（已完成）':open?'':'（未解锁）'}`);
+        node.classList.toggle('selected',lesson.id===current().id);node.disabled=!open;node.dataset.lessonId=lesson.id;
+        if(lesson.id===current().id)node.setAttribute('aria-current','step');
         details.append(node);
       });return details;
     }));
@@ -132,7 +143,9 @@ export function createCoursePlayer(root, context, course, renderExercise) {
     cleanup();
     const main=$('.learn-main');main.replaceChildren();
     const lesson=current(),chapter=course.chapters[lesson.chapterIndex];
-    main.append(element('p',`${chapter.title} · ${lesson.topic} · 约 ${lesson.minutes} 分钟`,'learn-topic'),element('h2',lesson.title),status);
+    const topic=element('p',null,'learn-topic');
+    topic.append(element('span',`第 ${lesson.chapterIndex+1} 章 · ${chapter.title}`,'learn-chip muted'),element('span',lesson.topic,'learn-chip'),element('span',`约 ${lesson.minutes} 分钟`,'learn-chip muted'));
+    main.append(topic,element('h2',lesson.title),status);
     const intro=element('details',null,'learn-explanation');intro.append(element('summary','本章知识说明'),element('p',chapter.introduction ?? chapter.grammar));intro.open=lesson.localIndex===0;main.append(intro);
     const body=element('div');main.append(body);
     cleanup=renderExercise(Object.assign(Object.create(ui), {body,lesson,chapter})) ?? (()=>{});

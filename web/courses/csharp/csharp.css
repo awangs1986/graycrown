@@ -1,0 +1,13 @@
+/* C# course theme: deep violet header (a nod to the C# logo) with a calm, code-friendly workspace. */
+.learning-course[data-theme="csharp"] {
+  --lp-accent: #5b45b8; --lp-accent-soft: #eeebfb; --lp-accent-ink: #ffffff;
+  --lp-header-from: #1d1638; --lp-header-to: #3a2b78; --lp-header-ink: #f3f0ff; --lp-header-muted: #c9c0f0;
+}
+@media (prefers-color-scheme: dark) {
+  .learning-course[data-theme="csharp"] { --lp-accent: #b4a3ff; --lp-accent-soft: #2a2550; --lp-accent-ink: #160f33; --lp-header-from: #130f26; --lp-header-to: #2a1f5a; }
+}
+.learning-course[data-theme="csharp"] .learn-header h1::before { content: "</>"; display: inline-block; margin-right: 12px; padding: 2px 8px; border-radius: 8px;
+  font: 700 .62em/1.6 Consolas, "Cascadia Code", monospace; vertical-align: .25em; color: #1d1638; background: #c9bbff; }
+.learning-course[data-theme="csharp"] .learn-meter > span { background: linear-gradient(90deg, #b9a8ff, #7fe0ef); }
+.csharp-workbench { margin-top: 18px; padding: 14px; border-radius: 18px; background: var(--lp-surface); border: 1px solid var(--lp-border); box-shadow: var(--lp-shadow); }
+.csharp-workbench .learn-label:first-child { margin-top: 0; }
