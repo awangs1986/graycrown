@@ -1,13 +1,19 @@
+import './pets.css';
+import { petCoursePresentation } from './pets.mjs';
+import { createBattle } from './battle.mjs';
+import { adventure } from './adventure.mjs';
+import { PUBLIC_SITE } from '../../deployment.mjs';
 import { chapters, lessons, furtherPractice } from './course.mjs';
-import { gradeFrench, shuffled } from './judge.mjs';
+import { shuffled } from './judge.mjs';
 import { createCoursePlayer, element, button } from '../shared/player.mjs';
 import './french.css';
 
 export async function mount(root,context){
-  return createCoursePlayer(root,context,{title:'法语 · Bonjour A1',subtitle:`${chapters.length} 个单元 · ${lessons.length} 个练习 · 词汇、语法、听力与阅读`,theme:'french',chapters,lessons},ui=>{
+  return createCoursePlayer(root,context,{title:'法语 · 晨钟宠物联盟 A1',subtitle:`24 种宠物 · ${chapters.length} 座道馆 · ${lessons.length} 场法语挑战`,chapters,lessons,adventure,presentation:petCoursePresentation(lessons)},ui=>{
     const {body,lesson,chapter}=ui;
     const responses=ui.state.responses[lesson.id]&&typeof ui.state.responses[lesson.id]==='object'&&!Array.isArray(ui.state.responses[lesson.id])?ui.state.responses[lesson.id]:{};
     ui.state.responses[lesson.id]=responses;
+    const battle=createBattle(ui,lessons,responses);
     const media=[];let vocabularyAudio;
     const goal=element('p',null,'unit-goal');goal.append(element('span','本单元目标'),element('strong',chapter.goal));body.append(goal);
     const vocab=element('details',null,'learn-explanation');vocab.append(element('summary',`本章词表与发音（${chapter.vocabulary.length} 项）`));
@@ -20,7 +26,7 @@ export async function mount(root,context){
     for(const item of furtherPractice){const li=element('li'),a=element('a',item.label);a.href=item.url;a.target='_blank';a.rel='noopener noreferrer';li.append(a);links.append(li);}
     vocab.append(element('p','课外延伸（可选，外部网站，需要联网）：'),links);body.append(vocab);
     if(lesson.topic==='听力'||lesson.questions.some(q=>q.audio))body.append(element('p','先听录音再回答，可以重复播放或调慢速度。需要帮助时再查看文字稿。','learn-explanation'));
-    const feedback=new Map();let lastGrade=null;
+    const feedback=new Map();
     for(const [index,question] of lesson.questions.entries()){
       const field=element('fieldset',null,'french-question');field.dataset.questionId=question.id;
       const legend=element('legend');legend.append(element('span',String(index+1),'question-number'),document.createTextNode(question.prompt));field.append(legend);
@@ -60,23 +66,15 @@ export async function mount(root,context){
         for(const char of ['é','è','ê','ë','à','â','ç','î','ï','ô','ù','û','ü','œ',"'"]){const key=button(char,()=>{const start=input.selectionStart??input.value.length,end=input.selectionEnd??start;input.setRangeText(char,start,end,'end');saveAnswer(input.value);input.focus();},'');key.setAttribute('aria-label',`插入 ${char}`);accents.append(key);}
         field.append(accents);
       }
-      const message=element('div');message.setAttribute('aria-live','polite');feedback.set(question.id,message);field.append(message);body.append(field);
+      const message=element('div');message.setAttribute('aria-live','polite');feedback.set(question.id,message);field.append(message);body.append(field);battle.addQuestion(question,field,message);
     }
-    const summary=element('div','完成所有小题后提交；可以修改并再次尝试。','learn-result');summary.setAttribute('role','status');
-    const submit=button('提交答案',async()=>{
-      if(ui.busy)return;ui.setBusy(true);
-      try{
-        lastGrade=gradeFrench(lesson,responses);
-        lastGrade.checks.forEach(check=>{
-          const node=feedback.get(check.id);node.className=`question-feedback ${check.passed?'correct':''}`;
-          node.textContent=check.passed?'✓ 正确':`再试一次。参考答案：${check.expected}\n${check.explanation}`;
-        });
-        summary.className=`learn-result ${lastGrade.passed?'success':'error'}`;
-        summary.textContent=`${lastGrade.correct} / ${lastGrade.total} 项正确，${lastGrade.score} 分。${lastGrade.passed?(lesson===lessons.at(-1)?'毕业综合测试已通过，恭喜完成本课程！':'本单元已通过，下一单元已解锁。'):'请根据逐题反馈修改后再提交。'}${ui.state.assisted[lesson.id]?' 本次使用了文字稿辅助。':''}`;
-        await ui.record(lastGrade.passed,lastGrade.score);
-      }catch(error){ui.report(error);}finally{ui.setBusy(false);}
-    },'primary-btn');submit.dataset.lockWhileBusy='';
-    const actions=element('div',null,'learn-actions');actions.append(submit,button('请 AI 导师解释',()=>ui.askTutor({code:JSON.stringify(responses),objective:lesson.questions.map(q=>q.prompt).join('\n'),compilerMessage:lastGrade?JSON.stringify(lastGrade):'尚未提交',output:''})));body.append(actions,summary);
-    return ()=>{media.forEach(audio=>{audio.pause();audio.removeAttribute('src');audio.load();});vocabularyAudio?.pause();};
+    battle.mountControls();
+    if(!PUBLIC_SITE)body.append(button('召唤语言导师',()=>ui.askTutor({code:JSON.stringify(responses),objective:lesson.questions.map(q=>q.prompt).join('\n'),compilerMessage:battle.feedback,output:''})));
+    const answers=element('div');
+    body.append(button('◈ 真知水晶 · 参考答复',async()=>{
+      if(!await ui.revealAnswer())return;
+      answers.replaceChildren(...lesson.questions.map((q,index)=>element('p',`${index+1}. ${q.answers.join(' / ')} — ${q.explanation}`,'learn-explanation')));
+    }),answers);
+    return ()=>{battle.dispose();media.forEach(audio=>{audio.pause();audio.removeAttribute('src');audio.load();});vocabularyAudio?.pause();};
   });
 }

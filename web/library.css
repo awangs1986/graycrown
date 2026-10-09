@@ -52,3 +52,8 @@
   .course-card { padding: 20px; }
 }
 @media (prefers-reduced-motion: reduce) { .course-card { transition: none; } .course-card:hover { transform: none; } }
+
+/* The public site has no server-side AI credentials or AI endpoints. */
+.public-learning-site #aiTutorBtn,
+.public-learning-site #explainCompilerBtn,
+.public-learning-site .ai-settings-section { display: none !important; }

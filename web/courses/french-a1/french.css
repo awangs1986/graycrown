@@ -39,5 +39,10 @@
 .learning-course[data-theme="french"] .vocabulary-card small { font-family: system-ui, "Microsoft YaHei", "PingFang SC", sans-serif; font-size: 12.5px; }
 .learning-course[data-theme="french"] .learn-nav button.done .nav-dot { background: var(--lp-accent); border-color: var(--lp-accent); }
 .learning-course[data-theme="french"] .learn-nav button.selected { box-shadow: inset 3px 0 0 var(--fr-red); }
-.unit-goal { display: flex; gap: 10px; align-items: baseline; margin: 2px 0 8px; color: var(--lp-muted); }
-.unit-goal strong { font-family: var(--lp-heading-font); color: var(--lp-ink); font-weight: 600; }
+.unit-goal { display: flex; gap: 10px; align-items: baseline; margin: 2px 0 8px; color: #59735d; }
+.unit-goal strong { font-family: Georgia, serif; color: #2c5540; font-weight: 600; }
+
+.learning-course[data-theme="pets"] .question-number {display:inline-grid;place-items:center;width:27px;height:27px;margin-right:8px;border-radius:50%;background:#dceac8;color:#315c41;font-weight:800;}
+.learning-course[data-theme="pets"] .listening-box {margin:12px 0;padding:14px;border-radius:12px;background:#edf4e5;border:1px solid #c7d8b8;}
+.learning-course[data-theme="pets"] .further-links {padding-left:20px;font-size:13px;line-height:1.8;}
+.learning-course[data-theme="pets"] .further-links a {color:#2b745b;}

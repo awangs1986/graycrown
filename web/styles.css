@@ -201,7 +201,16 @@ dialog::backdrop { background: rgba(5,10,19,.68); backdrop-filter: blur(4px); }
 .ai-settings-status.error { color: #9a302b; background: #fde8e6; }
 .ai-tutor-content { margin: 16px 0 20px; padding: 17px; border: 1px solid #b8d9da; border-radius: 12px; color: #243b43; background: #eef9f8; line-height: 1.8; white-space: pre-wrap; }
 .ai-disclaimer { color: #647086; font-size: 12px; }
-.file-label { display: grid; place-items: center; }
+/* File-picker labels must use the same text alignment as their button peers. */
+.soft-btn, .ghost-btn, .file-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  text-align: center;
+  line-height: 1.25;
+}
+.file-label { font-family: inherit; font-size: inherit; }
 .toast { position: fixed; z-index: 50; top: 80px; right: 22px; width: min(390px, calc(100vw - 44px)); padding: 16px 18px; transform: translateX(calc(100% + 45px)); opacity: 0; border: 1px solid #3d8f73; border-radius: 15px; color: #eaf9f4; background: #13372f; box-shadow: var(--shadow); transition: .28s ease; }
 .toast.show { transform: translateX(0); opacity: 1; }
 .toast strong { display: block; margin-bottom: 4px; }

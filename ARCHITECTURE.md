@@ -105,3 +105,56 @@ cargo build
 - `node --test tests/new-courses.test.mjs tests/library-save.test.mjs`：课程内容、判题、音频资源和独立存档检查。
 
 三个课程均已内置并开放。C 课程保持原有 140 道题及其玩法；C# 与法语各自管理进度并逐题解锁。
+
+## 公开网站部署模式
+
+`npm run build:public` 构建独立的 `dist/public-site`，启用 `web/.env.public` 中的公开模式标志。`web/browser-storage.mjs` 将完整课程库保存在当前站点、当前浏览器的 IndexedDB 中，保存事务完成后才返回成功。访客不共用服务器存档；清理站点数据会删除本机进度，跨设备使用需要导出/导入备份。
+
+公开模式不调用桌面启动器的存档和 AI 接口，隐藏 AI 操作入口并在请求模块内阻止调用。服务器只托管构建产物，拒绝 `/api/`，不运行 Rust 启动器。普通 `build:web` 保留本机版的存档和 AI 能力。
+
+部署目标为 `https://learn.awangsawangs.xyz/`；HTTP 重定向到 HTTPS，以满足编译器的安全上下文要求。独立 Nginx 配置设置 COOP/COEP/CORP 和 C# worker 的专用 CSP。具体目录、初次安装步骤和配置见 `deploy/README.md`。
+
+### Shared course adventure loop
+
+C# and French A1 now mount the RPG shell in `web/courses/shared/player.mjs`.
+Each course owns `adventure.mjs`: a prologue, ending, region NPCs, relics and a
+briefing/success narrative for every existing lesson. The shared shell provides
+start screen, region map, sequential quest unlocks, story/workbench layout,
+victory settlement and inventory/journal. C# has 8 regions / 96 quests; French
+has 12 regions / 156 quest groups. Existing compilers, graders and recordings
+remain the mechanisms that decide quest completion.
+
+`shared/adventure.mjs` derives XP, gold and levels from unique completed lesson
+IDs (20 XP / 10 gold per ordinary quest, 40 / 20 per region finale), preventing
+repeat rewards and crediting existing saves. A relic requires all quests in its
+region. Each region grants three reference-answer crystals; revealing the same
+answer again is free. Knowledge notes and hints remain available without spending
+crystals. French listening transcripts are marked as assistance.
+
+The per-course save remains version 1 with additive `answerReveals`,
+`consecutiveFailures` and `mapChapter` fields. Missing fields receive defaults;
+first-release lesson IDs, drafts, responses and completion records are preserved.
+New units are inserted without locking previously completed regions. Desktop AI
+help requires three consecutive unsuccessful submissions and is limited to one
+use per region. Public builds continue to disable AI services.
+
+### French creature battles
+
+French A1 uses optional shared presentation hooks for starter choice, illustrated
+map nodes, a regional habitat strip, the pet collection dialog and capture results.
+C/C# do not supply these hooks. `french-a1/pets.mjs` owns 24 species, 8 attribute
+icons and deterministic lesson-to-encounter assignments. Both atlases reside in
+`web/public/art/french-pets`; CSS selects their cells without runtime image edits.
+
+`french-a1/battle.mjs` turns a lesson into sequential question rounds. A correct
+answer removes 20 opponent HP, an incorrect answer removes one of three companion
+stamina points, and free camp recovery preserves cleared rounds. Once every round
+is cleared, capture calls the existing completion/reward path. Capture is certain,
+with no random learning gate. Pet ownership is derived from completed lesson IDs;
+replays do not award duplicate XP/gold. Old completions automatically unlock pets.
+
+Additive v1 fields `battles` and `companionId` preserve in-flight cleared rounds and
+partner choice. Restored rounds are regraded against their saved responses before
+being accepted; stamina is clamped and companion choices are validated against
+starters/captured species. Skipping input never attacks. No learning content or
+question/audio IDs were removed.
