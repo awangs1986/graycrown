@@ -17,10 +17,10 @@ All three courses are available:
 | Course | Content | Goal |
 | --- | --- | --- |
 | C | Original 7 chapters, 140 trials | C syntax and programming fundamentals |
-| C# | 7 chapters, 84 exercises, real compilation and 162 input/output cases | Build a console text RPG from scratch |
-| French A1 | 8 units, 96 exercise groups, 128 vocabulary entries, 152 offline audio clips | Progressive vocabulary, sentences, grammar, listening and integrated assessments |
+| C# | 8 chapters, 96 exercises, real compilation and 189 input/output cases | Build a console text RPG from scratch, step by step |
+| French A1 | 12 units (alphabet → travel), 156 exercises, 192 vocabulary entries, 228 offline audio clips | Progressive vocabulary, sentences, grammar, listening and unit tests with fresh items |
 
-The new courses use Chinese teaching explanations. C# accepts prefilled console input in the browser and exports source for a native .NET console project. French includes choices, typing, word ordering, dictation and reading; attributed synthetic audio supports slow playback.
+The new courses use Chinese teaching explanations. C# accepts prefilled console input in the browser and exports source for a native .NET console project. French includes choices, typing, word ordering, dictation and reading; attributed synthetic audio supports slow playback. Course content credits: [web/courses/french-a1/CREDITS.md](web/courses/french-a1/CREDITS.md).
 
 ## C course gameplay
 

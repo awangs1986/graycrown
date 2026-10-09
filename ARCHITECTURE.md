@@ -63,7 +63,7 @@ C# 和法语使用内部 v1 进度，记录当前题目、通关列表、作答�
 
 ## C# 编译运行与课程
 
-`web/courses/csharp/` 包含 7 章、84 道练习，按输出和变量 → 输入和类型 → 条件 → 循环 → 方法 → 集合和类 → RPG 整合推进。每题都有知识说明、代码骨架、提示、参考解和输入输出判定。毕业项目包含移动、观察、战斗、药水、钥匙、胜负和退出路径，可下载 `Program.cs` 放入 `dotnet new console` 项目运行。
+`web/courses/csharp/` 包含 8 章、96 道练习，按输出和变量 → 输入、类型与字符串 → 条件（先教 ?:，再用 TryParse 验证）→ 循环 → 方法（含重载、out）→ 集合（含排序、string.Join、LINQ 拓展）→ 类与对象（初始化器、构造、属性、封装、enum、try/catch、List<Hero>）→ RPG 整合（两个里程碑 + 毕业项目）推进。每题有显式、稳定的 `id`：首版题目保留原来的位置 ID（如 `cs03-08`），新增题目使用语义 ID（如 `cs-overload`），调整顺序不会让旧存档错位。`requiredPatterns` 用正则检查知识点，避免 `!` 被 `!=` 误判。每题都有知识说明、代码骨架、提示、参考解和输入输出判定。毕业项目包含移动、观察、战斗、药水、钥匙、胜负和退出路径，可下载 `Program.cs` 放入 `dotnet new console` 项目运行。
 
 `runtime/csharp/` 使用 .NET 9 浏览器 WebAssembly 运行时和 Roslyn 4.14.0，真实编译 C# 12。学员无需安装 .NET。`scripts/build-csharp.mjs` 在开发机发布运行时和编译引用，网页按需加载。每次提交创建独立 worker，完成后销毁；加载上限 90 秒，编译上限 30 秒，每组输入运行上限 4 秒，输出上限 64 KB。
 
@@ -71,14 +71,16 @@ C# 和法语使用内部 v1 进度，记录当前题目、通关列表、作答�
 
 ## 法语 A1 课程与音频
 
-`web/courses/french-a1/` 包含 8 单元、96 组练习、128 项词汇：问候 → 身份 → 家庭 → 日常与时间 → 餐饮 → 城市与住房 → 喜好、天气与购物 → 旅行与计划。题型包含选择、填空、排序、听力理解、听写、阅读及综合测试；结课综合测试含 13 小题。课程教学说明采用中文。
+`web/courses/french-a1/` 包含 12 单元、156 个练习、192 项词汇：入门（字母、拼读、数字）→ 问候 → 身份与疑问句 → 家庭 → 日常 → 时间与作息 → 餐饮 → 城市与住房 → 喜好、天气与衣着 → 爱好与邀请 → 身体与健康 → 旅行与计划。题型包含选择、填空、排序、听力理解、听写、阅读及综合测试。每单元 13 个练习，含 6 道以上不重复的语法题；章节测试和毕业测试使用练习中没出现过的新题（毕业测试含 14 小题）。翻译题可接受多种正确表达（`answers` 中任一项或可选 `alternates`）。首版 8 个单元的练习保留原位置 ID（如 `fr02-08`），新增练习使用语义 ID（如 `fr02-drill`、`fr-health-exam`）。课程教学说明采用中文；内容来源见 `CREDITS.md`。
 
 答案归一化接受大小写、常见标点、空格、弯引号及 œ/oe 等差异，但保留影响法语含义的重音差异。音频原文和参考答案作为学习辅助，使用情况计入进度。
 
-152 段 WAV 随包离线提供，位于 `web/public/audio/fr/`。这是 Piper `fr_FR-siwis-medium` 合成语音，非真人录音；支持正常和慢速播放。来源、作者及 CC-BY 4.0 信息见该目录 `ATTRIBUTION.txt`。更改听力文本后需重新生成音频：
+228 段 WAV 随包离线提供，位于 `web/public/audio/fr/`。这是 Piper `fr_FR-siwis-medium` 合成语音，非真人录音；支持正常和慢速播放。来源、作者及 CC-BY 4.0 信息见该目录 `ATTRIBUTION.txt`。更改听力文本后需重新生成音频：
 
 ```sh
 PIPER=/path/to/piper PIPER_MODEL=/path/to/fr_FR-siwis-medium.onnx npm run generate:french-audio
+# 只生成缺失的音频：npm run generate:french-audio -- --missing
+# 只重新生成指定片段：npm run generate:french-audio -- --ids fr07-exam
 ```
 
 ## 开发与构建
@@ -98,7 +100,7 @@ cargo build
 
 ## 课程验证命令
 
-- `npm run test:csharp`：原生 .NET 编译运行 84 道参考程序的 162 组输入输出。可用 `GRAY_CROWN_DOTNET` 指定 dotnet 可执行文件。
+- `npm run test:csharp`：原生 .NET 编译运行 96 道参考程序的 189 组输入输出。可用 `GRAY_CROWN_DOTNET` 指定 dotnet 可执行文件。
 - `npm run test:browser`：构建网页和 debug 启动器后，使用 Playwright 在临时存档中检查三个课程入口、浏览器 C# 参考程序、网络隔离、课程切换、法语音频和毕业 RPG。可用 `GRAY_CROWN_BROWSER_PATH` 指定 Chrome/Edge，`GRAY_CROWN_LAUNCHER` 指定启动器。
 - `node --test tests/new-courses.test.mjs tests/library-save.test.mjs`：课程内容、判题、音频资源和独立存档检查。
 
