@@ -11,9 +11,9 @@ authors or publishers.
 本课程仅对齐新概念英语第一、二册的语法与话题顺序，所有课文、对话、标题与练习均为原创。
 
 ## Artwork
-All illustrations are composed at runtime from the hand-authored SVG kit in `art.mjs` (places, the recurring
+All illustrations are composed at runtime from the hand-authored SVG kit in `art.mjs` / `shared/comic-kit.mjs` (places, the recurring
 original cast Leo, Mia, Sam, Mr Grant, Grandma Rose, Dr Lin, Ada, Officer Bell, and the trickster Mr Muddle,
-plus everyday props). No raster images, no third-party or franchise characters (no Pokémon or similar).
+plus everyday props). No raster images, no third-party or franchise characters.
 Licensed with the project (MIT).
 
 ## Audio

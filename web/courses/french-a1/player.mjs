@@ -1,19 +1,50 @@
-import './pets.css';
-import { petCoursePresentation } from './pets.mjs';
 import { createBattle } from './battle.mjs';
-import { adventure } from './adventure.mjs';
+import { adventure, regionInfo } from './adventure.mjs';
+import { comicPanel, VILLAIN } from './art.mjs';
+import { chapterComplete } from '../shared/adventure.mjs';
 import { PUBLIC_SITE } from '../../deployment.mjs';
 import { chapters, lessons, furtherPractice } from './course.mjs';
 import { shuffled } from './judge.mjs';
 import { createCoursePlayer, element, button } from '../shared/player.mjs';
+// Shared comic theme first, then the French accents (bleu-blanc-rouge, serif French text).
+import '../shared/comic.css';
 import './french.css';
 
+const panel = (scene, className = 'comic-figure') => { const node = element('figure', null, className); node.innerHTML = comicPanel(scene); return node; };
+const cover = chapter => ({ place: chapter.place, cast: chapter.cast, props: chapter.lessons[0].questions[0].scene.props, caption: `PARIS · ${regionInfo[chapter.id].name}`, label: `${regionInfo[chapter.id].name} 封面` });
+const presentation = {
+  setup(ui, tools, showDialog) {
+    tools.prepend(button('▤ 我的巴黎漫画册', () => {
+      if (ui.busy) return;
+      showDialog(`巴黎漫画册 · ${chapters.length} 页`, dialog => {
+        const done = chapters.filter(chapter => chapterComplete(chapter, ui.state));
+        dialog.append(element('p', `已收录 ${done.length} / ${chapters.length} 页。打败每章的 ${VILLAIN}即可收录该页。`));
+        const grid = element('div', null, 'comic-book');
+        for (const chapter of chapters) {
+          const open = chapterComplete(chapter, ui.state), page = element('section', null, `comic-page ${open ? '' : 'locked'}`);
+          page.append(open ? panel(cover(chapter), 'comic-thumb') : element('div', '?', 'comic-thumb comic-locked'));
+          page.append(element('strong', `${regionInfo[chapter.id].icon} ${regionInfo[chapter.id].relic}`), element('small', chapter.title));
+          grid.append(page);
+        }
+        dialog.append(grid);
+      });
+    }));
+  },
+  start(card) { card.append(panel({ place: 'rue', cast: ['lea', 'hugo', 'camille'], bubble: 'Bonjour, Paris !', caption: 'PARIS EN BD · 第 0 页', label: 'Léa、Hugo 和 Camille 出发' }, 'comic-figure comic-hero')); },
+  map(main, chapter) { main.append(panel({ ...cover(chapter), villain: true, burst: '?!' }, 'comic-figure comic-cover')); },
+  node(node, lesson) { node.append(element('span', lesson.key === 'exam' ? `BOSS · ${VILLAIN}` : `${lesson.questions.length} 格漫画`, 'comic-node-tag')); },
+  victory(dialog, lesson) {
+    const chapter = chapters[lesson.chapterIndex];
+    dialog.prepend(panel({ place: chapter.place, cast: chapter.cast, bubble: lesson.key === 'exam' ? 'On a gagné !' : 'Bravo !', burst: 'OUI !', caption: lesson.title, label: '胜利画格' }, 'comic-figure comic-victory'));
+  }
+};
+
 export async function mount(root,context){
-  return createCoursePlayer(root,context,{title:'法语 · 晨钟宠物联盟 A1',subtitle:`24 种宠物 · ${chapters.length} 座道馆 · ${lessons.length} 场法语挑战`,chapters,lessons,adventure,presentation:petCoursePresentation(lessons)},ui=>{
+  return createCoursePlayer(root,context,{title:'法语 · 巴黎漫画大冒险 A1',subtitle:`${chapters.length} 个巴黎街区 · ${lessons.length} 格漫画任务 · 原创内容`,chapters,lessons,adventure,presentation},ui=>{
     const {body,lesson,chapter}=ui;
     const responses=ui.state.responses[lesson.id]&&typeof ui.state.responses[lesson.id]==='object'&&!Array.isArray(ui.state.responses[lesson.id])?ui.state.responses[lesson.id]:{};
     ui.state.responses[lesson.id]=responses;
-    const battle=createBattle(ui,lessons,responses);
+    const battle=createBattle(ui,responses);
     const media=[];let vocabularyAudio;
     const goal=element('p',null,'unit-goal');goal.append(element('span','本单元目标'),element('strong',chapter.goal));body.append(goal);
     const vocab=element('details',null,'learn-explanation');vocab.append(element('summary',`本章词表与发音（${chapter.vocabulary.length} 项）`));
@@ -28,9 +59,10 @@ export async function mount(root,context){
     if(lesson.topic==='听力'||lesson.questions.some(q=>q.audio))body.append(element('p','先听录音再回答，可以重复播放或调慢速度。需要帮助时再查看文字稿。','learn-explanation'));
     const feedback=new Map();
     for(const [index,question] of lesson.questions.entries()){
-      const field=element('fieldset',null,'french-question');field.dataset.questionId=question.id;
+      const field=element('fieldset',null,'french-question comic-question');field.dataset.questionId=question.id;
       const legend=element('legend');legend.append(element('span',String(index+1),'question-number'),document.createTextNode(question.prompt));field.append(legend);
-      if(question.passage)field.append(element('p',question.passage,'fr-passage'));
+      field.append(panel(question.scene));
+      if(question.passage)field.append(element('p',question.passage,'fr-passage comic-passage'));
       if(question.audio){
         const box=element('div',null,'listening-box');field.append(box);
         const audio=element('audio');audio.controls=true;audio.preload='none';audio.src=question.audio;audio.setAttribute('aria-label',`第${index+1}题法语录音`);media.push(audio);box.append(audio);
@@ -60,7 +92,7 @@ export async function mount(root,context){
         }
         redraw();field.append(answer,bank,button('重新排列',()=>{selected=[];saveAnswer([]);redraw();}));
       }else{
-        const input=element('input',null,'french-answer');input.type='text';input.lang='fr';input.autocomplete='off';input.spellcheck=false;input.setAttribute('aria-label',question.prompt);input.value=typeof responses[question.id]==='string'?responses[question.id]:'';
+        const input=element('input',null,'french-answer comic-answer');input.type='text';input.lang='fr';input.autocomplete='off';input.spellcheck=false;input.setAttribute('aria-label',question.prompt);input.value=typeof responses[question.id]==='string'?responses[question.id]:'';
         input.addEventListener('input',()=>saveAnswer(input.value));field.append(input);
         const accents=element('div',null,'accent-keys');
         for(const char of ['é','è','ê','ë','à','â','ç','î','ï','ô','ù','û','ü','œ',"'"]){const key=button(char,()=>{const start=input.selectionStart??input.value.length,end=input.selectionEnd??start;input.setRangeText(char,start,end,'end');saveAnswer(input.value);input.focus();},'');key.setAttribute('aria-label',`插入 ${char}`);accents.append(key);}

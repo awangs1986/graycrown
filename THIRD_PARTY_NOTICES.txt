@@ -49,7 +49,8 @@ English course audio:
 Synthesized with Piper using en_GB-cori-medium (model card: trained on public-domain LibriVox
 recordings), encoded to MP3 with ffmpeg/libmp3lame. See web/public/audio/en/ATTRIBUTION.txt.
 Lesson text is original project content aligned to the New Concept English Books 1-2 syllabus;
-no New Concept English text is reproduced. Comic illustrations are original SVG (art.mjs).
+no New Concept English text is reproduced. Comic illustrations (English and French) are original SVG from the project's shared comic kit
+(web/courses/shared/comic-kit.mjs); no third-party artwork is included.
 
 
 Bundled C# runtime and editor license texts

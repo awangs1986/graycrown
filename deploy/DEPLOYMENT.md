@@ -49,9 +49,9 @@ by the user. The desktop build retains its original save and AI behavior.
   `index-D7rj-eut.js` entry. No browser interaction tests were run.
 - Temporary artifact-only HTTP server and transfer tunnel stopped after upload.
 
-## French pet league update — 2026-10-04
+## French course art update — 2026-10-04 (superseded)
 
-- Original creature/habitat art delivered in the `20261004-pets-2110` release.
+- Earlier raster artwork delivered in the `20261004-pets-2110` release; replaced on 2026-10-10 by the shared SVG comic kit (no raster art).
   Artifact SHA-256: `c18f278dc2d7f9f974360b7d57a419651f7e57263553e9a5a30f8f240fc3ef53`.
 - Final release: `/var/www/graycrown/releases/20261004-pets-2113`, including
   themed collection dialogs. Frontend delta SHA-256:
@@ -59,7 +59,7 @@ by the user. The desktop build retains its original save and AI behavior.
 - Releases use copied predecessors and an atomic symlink switch. Previous
   releases, personal-site content, Nginx configuration, compilers and audio retained.
 - Both public and desktop builds succeeded. No browser gameplay tests were run.
-- Art provenance, final prompts and paths: `web/public/art/french-pets/ARTWORK.md`.
+- That raster artwork and its provenance file were removed from the repository on 2026-10-10.
 
 ## Import-button alignment — 2026-10-04
 

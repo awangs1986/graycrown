@@ -1,3 +1,5 @@
+// Built from escapes so this guard file itself stays free of the names it forbids.
+const FRANCHISE=new RegExp('p\\u006fk[e\\u00e9]m\\u006fn|pik\\u0061chu|\\u5b9d\\u53ef\\u68a6|\\u5bf6\\u53ef\\u5922|\\u30dd\\u30b1\\u30e2\\u30f3','i');
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -84,12 +86,12 @@ test('every question has its own everyday comic panel built from the shared orig
   assert.ok(lessons.filter(l=>l.key==='exam').every(l=>l.questions.every(q=>q.scene.villain)));
   assert.ok(comicPanel({bubble:'<script>alert(1)</script>'}).includes('&lt;script&gt;'));
 });
-test('English course ships no Pokémon references or raster artwork, and states its NCE alignment',()=>{
+test('English course ships no franchise references or raster artwork, and states its NCE alignment',()=>{
   const dir=new URL('../web/courses/english-nce/',import.meta.url);
   for(const name of readdirSync(dir)){
     assert.match(name,/\.(mjs|css|md)$/,name);
-    // CREDITS.md may state the policy itself; code and styles must not reference the franchise.
-    if(!name.endsWith('.md'))assert.ok(!/pok[eé]mon|pikachu|宝可梦|寶可夢|ポケモン/i.test(readFileSync(new URL(name,dir),'utf8')),name);
+    // Code and styles must not reference the franchise the earlier French art imitated.
+    if(!name.endsWith('.md'))assert.ok(!FRANCHISE.test(readFileSync(new URL(name,dir),'utf8')),name);
   }
   assert.match(credits.syllabus,/原创/);assert.match(credits.syllabusEn,/original/i);
 });

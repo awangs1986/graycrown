@@ -7,7 +7,7 @@ import { shuffled } from './judge.mjs';
 import { createCoursePlayer, element, button } from '../shared/player.mjs';
 import { chapterComplete } from '../shared/adventure.mjs';
 // Loaded after the shared player stylesheet so the comic theme wins on equal specificity.
-import './comic.css';
+import '../shared/comic.css';
 
 const panel = (scene, className = 'comic-figure') => { const node = element('figure', null, className); node.innerHTML = comicPanel(scene); return node; };
 const cover = chapter => ({ place: chapter.place, cast: chapter.cast, props: chapter.lessons[0].questions[0].scene.props, caption: `${chapter.book === 1 ? 'BOOK 1' : 'BOOK 2'} · ${regionInfo[chapter.id].name}`, label: `${regionInfo[chapter.id].name} 封面` });

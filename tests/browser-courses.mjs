@@ -125,15 +125,18 @@ var post = type.GetMethod("PostAsync", new[] {typeof(string), http.GetType("Syst
 
   const frFirst=frLessons[0];
   await enterLesson('french-a1',frFirst.id);await page.locator('.french-question').first().waitFor();
-  await fightRounds(frFirst,/发动 ·/,'下一回合 →');
-  await page.getByRole('button',{name:/收服/}).click();await page.locator('.adventure-dialog').waitFor();
+  assert.ok(await page.locator('.french-question svg.comic-panel').count()===frFirst.questions.length);
+  assert.ok(await page.locator('.comic-arena svg.comic-panel').count()===1);
+  assert.equal(await page.locator('[style*="french-pets"], img[src*="french-pets"]').count(),0);
+  await fightRounds(frFirst,/发动 ·/,'下一格 →');
+  await page.getByRole('button',{name:/收录这一页漫画/}).click();await page.locator('.adventure-dialog .comic-victory').waitFor();
   await page.screenshot({path:path.join(evidence,'03-french.png'),fullPage:true});
   await page.locator('.adventure-dialog').getByRole('button',{name:'关闭'}).click();
   await backToLibrary();
   let save=JSON.parse(await readFile(path.join(evidence,'save/progress.json'),'utf8'));
   assert.equal(save.courses.c.gold,17);assert.equal(save.courses.c.drafts['D1-Q01'],'legacy C draft');
   assert.equal(save.courses.csharp.drafts[csLessons[1].id],'// retained C# draft');assert.ok(save.courses['french-a1'].completed.includes(frFirst.id));
-  pass('French first battle passes; C, C# and French saves remain independent.');
+  pass('French comic battle passes with one Paris illustration per question; C, C# and French saves remain independent.');
 
   const enFirst=enLessons[0];
   await enterLesson('english-nce',enFirst.id);await page.locator('.english-question').first().waitFor();
@@ -158,7 +161,7 @@ var post = type.GetMethod("PostAsync", new[] {typeof(string), http.GetType("Syst
   const playAudio=()=>page.locator('audio').first().evaluate(async audio=>{await audio.play();await new Promise(resolve=>setTimeout(resolve,300));const value={duration:audio.duration,time:audio.currentTime,ready:audio.readyState};audio.pause();return value;});
   let played=await playAudio();assert.ok(played.duration>0&&played.time>0&&played.ready>=2);
   const frField=page.locator(`[data-question-id="${frLessons[dictation].questions[0].id}"]`);
-  await frField.locator('input[type=text]').fill('wrong');await page.getByRole('button',{name:/发动 ·/}).click();await page.locator('.pet-battle-log').filter({hasText:'反击'}).waitFor();
+  await frField.locator('input[type=text]').fill('wrong');await page.getByRole('button',{name:/发动 ·/}).click();await page.locator('.comic-log').filter({hasText:'反击'}).waitFor();
   await frField.locator('input[type=text]').fill(frLessons[dictation].questions[0].answers[0]);await page.getByRole('button',{name:/发动 ·/}).click();await frField.locator('.question-feedback.correct').waitFor({state:'attached'});
   await page.screenshot({path:path.join(evidence,'04-listening.png'),fullPage:true});
   await backToLibrary();pass('Offline French audio plays; wrong dictation rejected and corrected answer passes.');
