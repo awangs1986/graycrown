@@ -5,6 +5,8 @@ export function gradeCode(lesson, source, result) {
   // Requirements teach the requested construct; multi-input execution decides behaviour.
   const withoutComments = source.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/[^\n]*/g,'');
   for (const construct of lesson.required ?? []) checks.push({passed:withoutComments.includes(construct),label:'知识点',message:`使用 ${construct} 完成本题。`});
+  // Patterns avoid substring false positives, e.g. "!" must not be satisfied by "!=".
+  for (const { pattern, label } of lesson.requiredPatterns ?? []) checks.push({passed:new RegExp(pattern).test(withoutComments),label:'知识点',message:`使用 ${label} 完成本题。`});
   for (const construct of lesson.requiredRaw ?? []) checks.push({passed:source.includes(construct),label:'知识点',message:`保留 ${construct}。`});
   lesson.tests.forEach((test,index)=>{
     const actual=result.executions?.[index];
