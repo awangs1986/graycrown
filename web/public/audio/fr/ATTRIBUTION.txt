@@ -14,4 +14,6 @@ Changes: synthesized new utterances from original A1 lesson text, slowed to 1.15
 
 Piper synthesis tool (build-time only): https://github.com/rhasspy/piper
 Reproduction: scripts/generate-french-audio.mjs
+Clips for the units added in 2026 (fr-basics, fr-time, fr-invite, fr-health) and the revised
+fr07-exam clip were synthesized with the piper-tts Python CLI and the same voice/model and settings.
 The Piper executable and model are not required by learners and are not bundled.
