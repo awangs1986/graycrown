@@ -15,5 +15,8 @@
 - TV5MONDE · Apprendre le français：https://apprendre.tv5monde.com/fr/exercices/a1-debutant
 - RFI · Le français facile：https://francaisfacile.rfi.fr/fr/exercices/a1/
 
+## 插图
+全部插图由共享漫画组件库 `web/courses/shared/comic-kit.mjs` 与 `french-a1/art.mjs` 中手写的 SVG 在运行时组合而成（巴黎场景、原创固定角色、日常道具），本项目原创，MIT 许可。不包含位图素材，也不使用任何第三方或商业 IP 角色。
+
 ## 音频
 合成语音的来源与许可见 `web/public/audio/fr/ATTRIBUTION.txt`（Piper `fr_FR-siwis-medium`，CC BY 4.0）。

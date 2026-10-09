@@ -1,5 +1,13 @@
 import { units, finalReview, furtherPractice } from './content.mjs';
+import { propsFor, placeLabels, PLACE_WORDS } from './art.mjs';
 export { furtherPractice };
+// Home scene and recurring characters for each unit (Léa is the learner's companion throughout).
+const SCENES = {
+  'fr-basics': { place: 'ecole', cast: ['lea', 'anne'] }, fr01: { place: 'rue', cast: ['lea', 'hugo'] }, fr02: { place: 'poste', cast: ['lea', 'marie'] },
+  fr03: { place: 'appartement', cast: ['lea', 'anne', 'paul'] }, fr04: { place: 'boulangerie', cast: ['lea', 'luc'] }, 'fr-time': { place: 'metro', cast: ['lea', 'luc'] },
+  fr05: { place: 'cafe', cast: ['lea', 'camille'] }, fr06: { place: 'seine', cast: ['lea', 'zoe'] }, fr07: { place: 'marche', cast: ['lea', 'ines'] },
+  'fr-invite': { place: 'jardin', cast: ['lea', 'ines', 'hugo'] }, 'fr-health': { place: 'pharmacie', cast: ['lea', 'camille'] }, fr08: { place: 'gare', cast: ['lea', 'paul'] }
+};
 const choice = (id, prompt, options, answer, explanation, extra = {}) => ({ id, type: 'choice', prompt, options, answers: [answer], explanation, ...extra });
 const text = (id, prompt, answers, explanation, extra = {}) => ({ id, type: 'text', prompt, answers, explanation, ...extra });
 const withId = (id, item) => ({ ...item, id });
@@ -63,11 +71,25 @@ export const chapters = units.map((unit, chapterIndex) => {
     rows[(index - 8) % 3][3].push(q(`extra-${index}`, `选择“${vocab[index].meaning}”的法语。`, distractors(index), vocab[index].fr, `${vocab[index].fr}：${vocab[index].meaning}`));
   }
   const lessons = rows.map(([key,title,topic,questions],localIndex) => ({id:lessonId(unit,key),key,title,topic,questions,chapterId:id,chapterIndex,localIndex,minutes:questions.length>1?(key==='exam'||key==='practice'?15:8):5}));
-  return {...unit,vocabulary:vocab,lessons};
+  return {...unit,...SCENES[id],vocabulary:vocab,lessons};
 });
 // Graduation adds cumulative items written for the final test, rather than re-asking earlier practice.
 const final = chapters.at(-1).lessons.at(-1);
 finalReview.forEach((item, index) => final.questions.push(withId(`fr-final-review-${index+1}`, item)));
 final.minutes = 25;
+// Every question gets its own everyday Paris comic panel, chosen from the French in the question.
+function illustrate(chapter, lesson, question, index) {
+  const french = [question.answers?.[0], question.transcript, question.passage, ...(question.options ?? [])].filter(Boolean).join(' ');
+  const props = propsFor(`${french} ${question.prompt}`, 2);
+  const unitProps = propsFor(chapter.vocabulary.map(item => item.fr).join(' '), 3);
+  const focus = [question.answers?.[0], question.transcript, question.prompt].filter(Boolean).join(' ');
+  const place = question.passage ? chapter.place : (PLACE_WORDS.find(([, rule]) => rule.test(focus))?.[0]) ?? chapter.place;
+  const cast = [chapter.cast[index % chapter.cast.length], chapter.cast[(index + 1) % chapter.cast.length]];
+  const exam = lesson.key === 'exam';
+  const bubble = lesson.key === 'vocab-meaning' ? question.prompt.match(/“(.+?)”/)?.[1]
+    : question.audio ? '♪ Écoute…' : lesson.key === 'reading' ? question.passage.split(/(?<=[.!?])\s/)[0].slice(0, 60) : undefined;
+  return { place, cast: exam ? cast.slice(0, 1) : cast, props: props.length ? props : unitProps.slice(index % 2, index % 2 + 1), bubble, villain: exam, burst: exam && index === 0 ? 'BOSS!' : undefined, caption: `${placeLabels[place]} · #${index + 1}`, label: `${placeLabels[place]} 场景插图`, pose: question.audio ? 'hold' : index % 3 === 2 ? 'point' : 'wave', mood: exam ? 'surprised' : 'happy' };
+}
+for (const chapter of chapters) for (const lesson of chapter.lessons) lesson.questions.forEach((question, index) => { question.scene = illustrate(chapter, lesson, question, index); });
 export const lessons = chapters.flatMap(chapter=>chapter.lessons);
 if (new Set(lessons.map(lesson => lesson.id)).size !== lessons.length) throw new Error('Duplicate French lesson id');

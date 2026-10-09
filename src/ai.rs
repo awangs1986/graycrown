@@ -50,6 +50,7 @@ fn tutor_subject(course: &str) -> Option<&'static str> {
         "c" => Some("C语言初学者，使用Clang编译器"),
         "csharp" => Some("C#初学者，使用Roslyn编译器；目标是掌握语法与基础逻辑，完成控制台文字RPG"),
         "french-a1" => Some("法语A1初学者；只讲解当前词汇、句子、语法或听力理解，保留法语重音符号，用中文解释"),
+        "english-nce" => Some("英语初学者（对齐新概念英语第一、二册大纲的原创课程）；只讲解当前词汇、句子、语法或听力理解，用中文解释，不引用新概念教材原文"),
         _ => None,
     }
 }
@@ -382,6 +383,7 @@ mod tests {
     fn tutor_context_selects_the_registered_course() {
         assert!(tutor_subject("csharp").unwrap().contains("Roslyn"));
         assert!(tutor_subject("french-a1").unwrap().contains("法语A1"));
+        assert!(tutor_subject("english-nce").unwrap().contains("英语"));
         assert!(tutor_subject("c").unwrap().contains("Clang"));
         assert!(tutor_subject("unknown").is_none());
     }

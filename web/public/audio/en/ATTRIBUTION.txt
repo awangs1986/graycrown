@@ -1,0 +1,12 @@
+English course audio (Comic City Quest)
+
+Original lesson texts by the Gray Crown project. Audio is synthesized speech, not a recording
+of a live teacher. Generated with Piper using the en_GB-cori-medium voice (22,050 Hz),
+length_scale 1.12, then encoded to mono 48 kbps MP3 with ffmpeg (libmp3lame).
+
+Voice/model: https://huggingface.co/rhasspy/piper-voices/tree/main/en/en_GB/cori/medium
+Model author: Bryce Beattie (https://brycebeattie.com/files/tts/)
+Training data: LibriVox recordings (public domain), per the model card.
+Piper synthesis tool (build-time only): https://github.com/rhasspy/piper
+Reproduction: scripts/generate-english-audio.mjs
+The Piper executable and model are not required by learners and are not bundled.
