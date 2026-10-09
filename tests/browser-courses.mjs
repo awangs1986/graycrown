@@ -9,6 +9,7 @@ import assert from 'node:assert/strict';
 import { lessons as csLessons } from '../web/courses/csharp/course.mjs';
 import { lessons as frLessons } from '../web/courses/french-a1/course.mjs';
 import { lessons as enLessons } from '../web/courses/english-nce/course.mjs';
+import { lessons as phLessons } from '../web/courses/physics/course.mjs';
 import { gradeCode } from '../web/courses/csharp/judge.mjs';
 
 const root=process.cwd();
@@ -35,7 +36,7 @@ try{
   await page.goto(url);await page.locator('.course-card').first().waitFor();
   assert.equal(await page.locator('.course-card button:disabled').count(),0);
   assert.ok(!requests.some(value=>value.includes('/csharp/')));
-  await page.screenshot({path:path.join(evidence,'01-courses.png'),fullPage:true});pass('Four available courses; no eager compiler load.');
+  await page.screenshot({path:path.join(evidence,'01-courses.png'),fullPage:true});pass('Five available courses; no eager compiler load.');
 
   // Reuse the worker for reference regression only. Production uses a fresh worker per submission.
   await page.evaluate(()=>{
@@ -176,6 +177,44 @@ var post = type.GetMethod("PostAsync", new[] {typeof(string), http.GetType("Syst
   await page.screenshot({path:path.join(evidence,'05-rpg.png'),fullPage:true});
   await page.locator('.adventure-dialog').getByRole('button',{name:'关闭'}).click();
   await backToLibrary();pass('Graduation RPG passes all seven paths through the actual course UI.');
+  // Physics: every stage teaches first; the quiz renders only after the worked example is read.
+  const shots=process.env.PHYSICS_SHOTS||evidence;await mkdir(shots,{recursive:true});
+  await page.locator('.course-card[data-course-id="physics"]').scrollIntoViewIfNeeded();
+  await page.screenshot({path:path.join(shots,'physics-shelf.png'),fullPage:true});
+  const answerPhysics=async lesson=>{for(const q of lesson.questions){const field=page.locator(`[data-question-id="${q.id}"]`);
+    if(q.type==='choice')await field.locator('input[type=radio]').evaluateAll((els,v)=>els.find(e=>e.value===v).click(),q.answer);else await field.locator('input[type=text]').fill(String(q.answer));}};
+  const ph1=phLessons[0];
+  await page.locator('.course-card[data-course-id="physics"] button').click();await page.locator('.ph-teach').waitFor();
+  assert.ok(await page.locator('.ph-quiz.locked').count()===1);assert.equal(await page.locator('.ph-question').count(),0);
+  assert.ok(await page.locator('.ph-teach .katex').count()>0);
+  await page.locator('.ph-teach .ph-photo img').evaluate(img=>img.complete&&img.naturalWidth>0?1:new Promise((ok,fail)=>{img.onload=ok;img.onerror=fail;}));
+  while(await page.getByRole('button',{name:'显示下一步解答'}).isVisible())await page.getByRole('button',{name:'显示下一步解答'}).click();
+  await page.addStyleTag({content:'#courseNavigation{position:static!important}'});await page.locator('.ph-teach').screenshot({path:path.join(shots,'physics-teach.png')});
+  await page.getByRole('button',{name:/我已读完讲解/}).click();await page.locator('.ph-question').first().waitFor();
+  const numericQ=ph1.questions.find(q=>q.type==='numeric');
+  await answerPhysics(ph1);await page.locator(`[data-question-id="${numericQ.id}"] input`).fill(String(numericQ.answer*3));
+  await page.getByRole('button',{name:'提交测验'}).click();await page.locator('.ph-summary.retry').waitFor();
+  assert.ok(await page.locator(`[data-question-id="${numericQ.id}"].wrong`).count()===1);
+  await page.locator(`[data-question-id="${numericQ.id}"] input`).fill(`${numericQ.answer} ${numericQ.unit}`);
+  await page.getByRole('button',{name:'提交测验'}).click();await page.locator('.ph-summary.pass').waitFor();
+  await page.locator('.ph-quiz').screenshot({path:path.join(shots,'physics-quiz.png')});
+  assert.equal(await page.locator(`.ph-nav-item[data-lesson-id="${phLessons[1].id}"]`).isDisabled(),false);
+  assert.equal(await page.locator(`.ph-nav-item[data-lesson-id="${phLessons[2].id}"]`).isDisabled(),true);
+  await backToLibrary();
+  save=JSON.parse(await readFile(path.join(evidence,'save/progress.json'),'utf8'));
+  assert.deepEqual(save.courses.physics.completed,[ph1.id]);assert.equal(save.courses.physics.responses[ph1.id].read,true);
+  assert.ok(save.courses['french-a1'].completed.includes(frFirst.id));
+  pass('Physics: quiz locked until the teach step is read; KaTeX + photo render; wrong numeric rejected, unit answer accepted; next stage unlocks.');
+  const exam=phLessons.findIndex(l=>l.id==='ph02-exam');
+  save.courses.physics.completed=phLessons.slice(0,exam).map(l=>l.id);save.courses.physics.currentLessonId=phLessons[exam].id;await putSave(save);
+  await page.locator('.course-card[data-course-id="physics"] button').click();await page.locator('.ph-recap').waitFor();
+  assert.equal(await page.locator('.ph-teach').count(),0);
+  await answerPhysics(phLessons[exam]);
+  await page.addStyleTag({content:'#courseNavigation{position:static!important}'});await page.screenshot({path:path.join(shots,'physics-exam.png'),fullPage:true});
+  await page.getByRole('button',{name:'提交单元测试'}).click();await page.locator('.ph-summary.pass').waitFor();
+  await page.getByRole('button',{name:'来源与版权'}).click();await page.locator('.ph-dialog .ph-image-credits li').first().waitFor();
+  assert.equal(await page.locator('.ph-dialog .ph-image-credits li').count(),33);await page.locator('.ph-dialog').getByRole('button',{name:'关闭'}).click();
+  await backToLibrary();pass('Physics unit exam (formula recap → test) passes; in-app credits list every photo.');
   await page.setViewportSize({width:390,height:844});await page.screenshot({path:path.join(evidence,'06-mobile.png'),fullPage:true});
   assert.deepEqual(errors,[]);pass('No uncaught browser errors.');
 }catch(error){reports.push('FAIL '+error.stack);console.error(error);process.exitCode=1;}
