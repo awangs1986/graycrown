@@ -16,7 +16,7 @@ export function chapterComplete(chapter, state) {
   return chapter.lessons.every(lesson => state.completed.includes(lesson.id));
 }
 export function regionUnlocked(chapters, state, index) {
-  return index >= 0 && index < chapters.length && chapters.slice(0, index).every(chapter => chapterComplete(chapter, state));
+  return index >= 0 && index < chapters.length && (chapters[index].lessons.some(lesson => state.completed.includes(lesson.id)) || chapters.slice(0, index).every(chapter => chapterComplete(chapter, state)));
 }
 export function crystalsLeft(state, chapter) {
   const spent = chapter.lessons.filter(lesson => state.answerReveals?.includes(lesson.id)).length;

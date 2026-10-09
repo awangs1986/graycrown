@@ -5,23 +5,26 @@ import { createEditor } from './editor.mjs';
 import { CSharpRuntime } from './runtime.mjs';
 import { gradeCode } from './judge.mjs';
 import { createCoursePlayer, element, button, downloadFile } from '../shared/player.mjs';
+import './csharp.css';
 
 export async function mount(root, context) {
-  return createCoursePlayer(root,context,{title:'C# · 王冠远征',subtitle:'7 章 · 84 道编程试炼 · 从第一行代码到文字 RPG',chapters,lessons,adventure},ui=>{
+  return createCoursePlayer(root,context,{title:'C# · 王冠远征',subtitle:`${chapters.length} 章 · ${lessons.length} 道编程试炼 · 从第一行代码到文字 RPG`,chapters,lessons,adventure},ui=>{
     const {body,lesson}=ui;
     const theory=element('section',null,'learn-explanation');theory.append(element('strong',lesson.topic),element('p',lesson.teach));body.append(theory);
     body.append(element('p',lesson.objective,'learn-task'));
     if(lesson.rules){const rules=element('ol',null,'learn-task');lesson.rules.forEach(rule=>rules.append(element('li',rule)));body.append(rules);}
     const samples=element('details',null,'learn-explanation');samples.append(element('summary',`测试用例（${lesson.tests.length} 组）`));
     lesson.tests.forEach((test,index)=>{samples.append(element('strong',`测试 ${index+1}`),element('pre',`输入：\n${test.input||'（无）'}\n期望输出：\n${test.output||'（无）'}`));});body.append(samples);
-    const editorRoot=element('div',null,'learn-editor');editorRoot.setAttribute('aria-label','C# 代码编辑器');body.append(editorRoot);
+    const workbench=element('section',null,'csharp-workbench');workbench.setAttribute('aria-label','代码工作台');body.append(workbench);
+    workbench.append(element('span','Program.cs','learn-label'));
+    const editorRoot=element('div',null,'learn-editor');editorRoot.setAttribute('aria-label','C# 代码编辑器');workbench.append(editorRoot);
     let initializing=true;
     const editor=createEditor(editorRoot,value=>{if(initializing)return;ui.state.drafts[lesson.id]=value;ui.save();});
     editor.setValue(typeof ui.state.drafts[lesson.id]==='string'?ui.state.drafts[lesson.id]:lesson.starter);initializing=false;
-    body.append(element('label','程序输入（预先填写，每行对应一次 ReadLine）'));
-    const input=element('textarea',null,'learn-input');input.setAttribute('aria-label','程序输入');input.value=typeof ui.state.inputs[lesson.id]==='string'?ui.state.inputs[lesson.id]:(lesson.demoInput??lesson.tests[0].input);body.append(input);
+    const inputLabel=element('label','程序输入（预先填写，每行对应一次 ReadLine）','learn-label');workbench.append(inputLabel);
+    const input=element('textarea',null,'learn-input');input.setAttribute('aria-label','程序输入');input.value=typeof ui.state.inputs[lesson.id]==='string'?ui.state.inputs[lesson.id]:(lesson.demoInput??lesson.tests[0].input);input.id=`stdin-${lesson.id}`;inputLabel.htmlFor=input.id;workbench.append(input);
     input.addEventListener('input',()=>{ui.state.inputs[lesson.id]=input.value;ui.save();});
-    const status=element('p','C# 编译器将在运行时按需加载。','learn-status');body.append(status);
+    const status=element('p','C# 编译器将在运行时按需加载。','learn-status');workbench.append(status);
     const runtime=new CSharpRuntime(text=>status.textContent=text);
     const result=element('pre','运行代码查看输出；提交时会执行全部测试用例。','learn-result');result.setAttribute('aria-live','polite');
     let lastFeedback='';
@@ -51,7 +54,7 @@ export async function mount(root, context) {
     for(const [name,action,style] of [['▶ 运行',()=>execute(false),'soft-btn'],['◆ 提交符文试炼',()=>execute(true),'primary-btn'],['恢复起始代码',()=>{if(ui.busy||!confirm('恢复起始代码会替换当前草稿，继续？'))return;editor.setValue(lesson.starter);},'ghost-btn']]){
       const control=button(name,action,style);control.dataset.lockWhileBusy='';actions.append(control);
     }
-    body.append(actions,result);
+    workbench.append(actions,result);
     const hints=element('details',null,'learn-explanation');hints.append(element('summary','分级提示'));
     lesson.hints.forEach((text,index)=>{
       if((Number(ui.state.hints[lesson.id])||0)>index) {hints.append(element('p',text));return;}

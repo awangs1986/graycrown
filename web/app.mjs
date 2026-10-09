@@ -40,6 +40,10 @@ function renderLibrary() {
   $('#courseCards').replaceChildren(...courses.map(course => {
     const card = document.createElement('article');
     card.className = 'course-card';
+    card.dataset.courseId = course.id;
+    const emblem = document.createElement('span');
+    emblem.className = 'course-emblem';
+    emblem.setAttribute('aria-hidden', 'true');
     const title = document.createElement('h2');
     title.textContent = localized(course.title, library.language);
     const description = document.createElement('p');
@@ -52,7 +56,14 @@ function renderLibrary() {
       ? tr('Coming later', '待制作')
       : Object.hasOwn(library.courses, course.id) ? tr('Continue course', '继续学习') : tr('Enter course', '进入课程');
     button.addEventListener('click', () => openCourse(course.id));
-    card.append(title, description, button);
+    const started = Object.hasOwn(library.courses, course.id);
+    const badge = document.createElement('span');
+    badge.className = `course-badge${started ? ' started' : ''}`;
+    badge.textContent = started ? tr('In progress', '学习中') : tr('New', '未开始');
+    const head = document.createElement('div');
+    head.className = 'course-card-head';
+    head.append(emblem, badge);
+    card.append(head, title, description, button);
     return card;
   }));
 }

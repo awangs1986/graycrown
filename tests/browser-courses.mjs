@@ -50,12 +50,12 @@ try{
     const result=await page.evaluate(({source,inputs})=>window.runReference(source,inputs),{source:lesson.solution,inputs:lesson.tests.map(test=>test.input)});
     const grade=gradeCode(lesson,lesson.solution,result);
     assert.equal(grade.passed,true,lesson.id+' '+JSON.stringify(grade.checks.filter(check=>!check.passed)));
-    if(lesson.localIndex===11)pass(`Browser C# chapter ${lesson.chapterIndex+1}: all 12 reference programs pass.`);
+    if(lesson===csLessons.filter(l=>l.chapterId===lesson.chapterId).at(-1))pass(`Browser C# chapter ${lesson.chapterIndex+1}: all reference programs pass.`);
   }
   const syntax=await page.evaluate(()=>window.runReference('this is not C#',['']));assert.equal(syntax.compiled.ok,false);
   const outputLimit=await page.evaluate(()=>window.runReference('using System; Console.WriteLine(new string(\'x\', 70000));',['']));assert.equal(outputLimit.executions[0].ok,false);
   assert.match(outputLimit.executions[0].stderr,/64KB/);
-  await page.evaluate(()=>window.referenceWorker.terminate());pass(process.env.GRAY_CROWN_BROWSER_UI_ONLY ? 'C# syntax errors and output limit.' : 'Real C# browser compiler: 84 programs / 162 cases, syntax errors and output limit.');
+  await page.evaluate(()=>window.referenceWorker.terminate());pass(process.env.GRAY_CROWN_BROWSER_UI_ONLY ? 'C# syntax errors and output limit.' : `Real C# browser compiler: ${csLessons.length} programs / ${csLessons.reduce((n,l)=>n+l.tests.length,0)} cases, syntax errors and output limit.`);
 
   // Canonical and equivalent URLs must share the restrictive policy.
   for(const workerPath of ['csharp/runner.worker.js','csharp/%72unner.worker.js','/csharp/runner.worker.js']){
@@ -115,14 +115,15 @@ var post = type.GetMethod("PostAsync", new[] {typeof(string), http.GetType("Syst
   pass('French first unit passes; C, C# and French saves remain independent.');
 
   // Fixture unlocks prerequisites only, so audio, spelling and graduation can be exercised directly.
-  save.courses['french-a1'].completed=frLessons.slice(0,8).map(l=>l.id);save.courses['french-a1'].currentLessonId=frLessons[8].id;
+  const dictation=frLessons.findIndex(l=>l.key==='dictation');
+  save.courses['french-a1'].completed=frLessons.slice(0,dictation).map(l=>l.id);save.courses['french-a1'].currentLessonId=frLessons[dictation].id;
   save.courses.csharp.completed=csLessons.slice(0,-1).map(l=>l.id);save.courses.csharp.currentLessonId=csLessons.at(-1).id;
   await fetch(url+'api/save',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(save)});
   await page.reload();await page.locator('.course-card button').nth(2).click();await page.locator('audio').waitFor();
   const played=await page.locator('audio').evaluate(async audio=>{await audio.play();await new Promise(resolve=>setTimeout(resolve,300));return {duration:audio.duration,time:audio.currentTime,ready:audio.readyState};});
   assert.ok(played.duration>0&&played.time>0&&played.ready>=2);await page.locator('audio').evaluate(audio=>audio.pause());
   await page.locator('.french-answer').fill('wrong');await page.getByRole('button',{name:'提交答案',exact:true}).click();await page.locator('.learn-result.error').waitFor();
-  await page.locator('.french-answer').fill(frLessons[8].questions[0].answers[0]);await page.getByRole('button',{name:'提交答案',exact:true}).click();await page.locator('.learn-result.success').waitFor();
+  await page.locator('.french-answer').fill(frLessons[dictation].questions[0].answers[0]);await page.getByRole('button',{name:'提交答案',exact:true}).click();await page.locator('.learn-result.success').waitFor();
   await page.screenshot({path:path.join(evidence,'04-listening.png'),fullPage:true});
   await page.locator('#backToCourses').click();await page.locator('#library').waitFor({state:'visible'});pass('Offline French audio plays; wrong dictation rejected and corrected answer passes.');
   await page.locator('.course-card button').nth(1).click();await page.locator('.learn-editor .cm-content').fill(csLessons.at(-1).solution);

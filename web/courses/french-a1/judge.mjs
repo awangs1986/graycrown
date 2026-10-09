@@ -6,7 +6,9 @@ export function gradeFrench(lesson, responses) {
   const checks=lesson.questions.map(question=>{
     const response=responses[question.id];
     const value=Array.isArray(response)?response.join(' '):String(response??'');
-    const passed=question.answers.some(answer=>normalizeFrench(answer)===normalizeFrench(value));
+    // answers[0] is the model answer; further answers and optional alternates are equally accepted.
+    const accepted=[...question.answers,...(question.alternates??[])];
+    const passed=value.trim()!==''&&accepted.some(answer=>normalizeFrench(answer)===normalizeFrench(value));
     return {id:question.id,passed,actual:value,expected:question.answers[0],explanation:question.explanation};
   });
   const correct=checks.filter(check=>check.passed).length;

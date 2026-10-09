@@ -38,5 +38,6 @@ export function createProgress(context, lessons, report) {
 }
 export function unlocked(lessons, state, index) {
   if (!lessons[index]) return false;
-  return state.completed.includes(lessons[index].id) || lessons.slice(0, index).every(lesson => state.completed.includes(lesson.id));
+  const lastCompleted = lessons.reduce((last, lesson, position) => state.completed.includes(lesson.id) ? position : last, -1);
+  return index <= lastCompleted + 1 || lessons.slice(0, index).every(lesson => state.completed.includes(lesson.id));
 }

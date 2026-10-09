@@ -19,6 +19,7 @@ async function prewarmClang(clang) {
   await project.writeFile('warmup.c', '#include <stdio.h>\nint main(void){return 0;}\n');
   const process = await clang.entrypoint.run({
     args: ['/project/warmup.c', '-std=c11', '-O0', '-o', '/project/warmup.wasm'],
+    stdin: '',
     mount: { '/project': project },
     cwd: '/project'
   });
@@ -26,7 +27,7 @@ async function prewarmClang(clang) {
   if (!result.ok) throw new Error(`Clang预热失败：${result.stderr}`);
   const warmupWasm = await project.readFile('warmup.wasm');
   const warmupProgram = Wasmer.fromWasm(warmupWasm);
-  const execution = await (await warmupProgram.entrypoint.run()).wait();
+  const execution = await (await warmupProgram.entrypoint.run({ stdin: '' })).wait();
   if (!execution.ok) throw new Error(`WASM运行预热失败：${execution.stderr}`);
 }
 
@@ -60,6 +61,7 @@ self.onmessage = async event => {
       post('phase', { id, phase: 'batch-compiling' });
       const process = await clang.entrypoint.run({
         args: ['-std=c11', '-O0', '-Wall', '-Wextra', '-Wpedantic', '-fsyntax-only', ...paths],
+        stdin: '',
         mount: { '/project': project },
         cwd: '/project'
       });
@@ -80,6 +82,7 @@ self.onmessage = async event => {
     post('phase', { id, phase: 'compiling' });
     const compiler = await clang.entrypoint.run({
       args: ['/project/main.c', '-std=c11', '-O0', '-Wall', '-Wextra', '-Wpedantic', '-o', '/project/program.wasm'],
+      stdin: '',
       mount: { '/project': project },
       cwd: '/project'
     });

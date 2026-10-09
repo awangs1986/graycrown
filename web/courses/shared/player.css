@@ -107,3 +107,11 @@
 @media(max-width:1100px) { .adventure-map { grid-template-columns:repeat(4,minmax(0,1fr)); } .adventure-node::after { display:none; } .adventure-trial { grid-template-columns:1fr; } }
 @media(max-width:600px) { .adventure-course .learn-main { padding:14px; } .adventure-map { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; padding:16px; } .adventure-prologue { padding:30px 22px; margin:10px auto; } .adventure-workbench { padding:16px; } .adventure-course .learn-nav { padding:10px; } .adventure-course .learn-tools { gap:4px; } }
 @media(prefers-reduced-motion:reduce) { .adventure-node { transition:none; } }
+
+.learn-label {display:block;margin:14px 0 7px;font-weight:700;font-size:13px;color:#375160;}
+
+.learn-heading {flex:1;min-width:min(100%,280px);}
+.learn-progress-row {display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap;}
+.learn-meter {flex:1;min-width:80px;height:8px;border-radius:99px;overflow:hidden;background:#ffffff33;}
+.learn-meter > span {display:block;height:100%;width:0;background:linear-gradient(90deg,#f0cb72,#95d5ab);transition:width .3s;}
+@media (prefers-reduced-motion: reduce) {.learn-meter > span {transition:none;}}

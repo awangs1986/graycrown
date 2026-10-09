@@ -41,8 +41,12 @@ export function portrait(pet,className='') {
  const node=element('div',null,`pet-portrait ${className}`);node.setAttribute('role','img');node.setAttribute('aria-label',pet.name);
  node.style.backgroundPosition=`${pet.index%6*20}% ${Math.floor(pet.index/6)*100/3}%`;return node;
 }
-const habitats=[[3,4,5],[6,7,8],[9,10,11],[12,13,14],[15,16,17],[18,19,20],[21,22,23],[0,1,2]];
-export function encounter(lesson) {const set=habitats[lesson.chapterIndex];return pets[set[lesson.localIndex===11?2:lesson.localIndex%2]];}
+const habitats={
+ 'fr-basics':[0,1,2],fr01:[3,4,5],fr02:[6,7,8],fr03:[9,10,11],
+ fr04:[12,13,14],'fr-time':[12,13,14],fr05:[15,16,17],fr06:[18,19,20],
+ fr07:[21,22,23],'fr-invite':[0,1,2],'fr-health':[6,7,8],fr08:[0,1,23]
+};
+export function encounter(lesson) {const set=habitats[lesson.chapterId]??habitats.fr01;return pets[set[lesson.localIndex>=12?2:lesson.localIndex%2]];}
 function captured(state,lessons) {return new Set(lessons.filter(l=>state.completed.includes(l.id)).map(l=>encounter(l).id));}
 export function companion(state,lessons) {
  const owned=captured(state,lessons);
@@ -77,10 +81,10 @@ export function petCoursePresentation(lessons) {
   },
   map(main,chapter,ui) {
    const strip=element('div',null,'pet-habitat');strip.append(element('div','本区出没 · HABITAT','pet-eyebrow'));
-   for(const index of habitats[chapter.lessons[0].chapterIndex]){const pet=pets[index],item=element('div',null,'pet-habitat-item');item.append(portrait(pet),element('strong',pet.name),typeBadge(pet.type));strip.append(item);}
+   for(const index of habitats[chapter.id]??habitats.fr01){const pet=pets[index],item=element('div',null,'pet-habitat-item');item.append(portrait(pet),element('strong',pet.name),typeBadge(pet.type));strip.append(item);}
    const active=companion(ui.state,lessons);strip.append(element('p',`同行伙伴：${active.name} · 答对发动招式，完成挑战后结识宠物。`));main.append(strip);
   },
-  node(node,lesson) {const pet=encounter(lesson);node.prepend(portrait(pet,'pet-node-art'));node.append(element('span',`${lesson.localIndex===11?'道馆守护':'野外遭遇'} · ${pet.name}`,'pet-node-name'));},
+  node(node,lesson) {const pet=encounter(lesson);node.prepend(portrait(pet,'pet-node-art'));node.append(element('span',`${lesson.localIndex>=12?'道馆守护':'野外遭遇'} · ${pet.name}`,'pet-node-name'));},
   victory(dialog,lesson) {
    const pet=encounter(lesson),card=element('div',null,'pet-capture');card.append(element('div','收服成功 · 新的羁绊','pet-eyebrow'),portrait(pet),element('h3',`${pet.name} · ${pet.fr}`),typeBadge(pet.type),element('p',`已登记图鉴，可在“宠物图鉴 / 更换伙伴”中让它同行。`));dialog.prepend(card);
   }

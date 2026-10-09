@@ -17,10 +17,10 @@ All three courses are available:
 | Course | Content | Goal |
 | --- | --- | --- |
 | C | Original 7 chapters, 140 trials | C syntax and programming fundamentals |
-| C# | 7 chapters, 84 exercises, real compilation and 162 input/output cases | Build a console text RPG from scratch |
-| French A1 | 8 units, 96 exercise groups, 128 vocabulary entries, 152 offline audio clips | Progressive vocabulary, sentences, grammar, listening and integrated assessments |
+| C# | 8 chapters, 96 exercises, real compilation and 189 input/output cases | Build a console text RPG from scratch, step by step |
+| French A1 | 12 units (alphabet → travel), 156 exercises, 192 vocabulary entries, 228 offline audio clips | Progressive vocabulary, sentences, grammar, listening and unit tests with fresh items |
 
-The new courses use Chinese teaching explanations. C# accepts prefilled console input in the browser and exports source for a native .NET console project. French includes choices, typing, word ordering, dictation and reading; attributed synthetic audio supports slow playback.
+The new courses use Chinese teaching explanations. C# accepts prefilled console input in the browser and exports source for a native .NET console project. French includes choices, typing, word ordering, dictation and reading; attributed synthetic audio supports slow playback. Course content credits: [web/courses/french-a1/CREDITS.md](web/courses/french-a1/CREDITS.md).
 
 ## C course gameplay
 
@@ -74,11 +74,11 @@ See [LICENSE](LICENSE).
 
 ### C# 与法语：RPG 冒险课程
 
-- **C# · 王冠远征**：穿越雾港、集市、森林、地牢、镜塔、星图馆与王城，完成 84 道符文委托，收集七枚核心；最终用 C# 编写可运行的控制台文字 RPG。
-- **法语 · 晨钟之旅 A1**：扮演巡路信使，穿越八个区域，在 96 组委托中学习问候、身份、家庭、日常、餐饮、问路、喜好与旅行。词汇、句子、语法和离线听力共同推动剧情。
+- **C# · 王冠远征**：穿越雾港、集市、森林、地牢、镜塔、星图馆、英雄工坊与王城，完成 96 道符文委托，收集八枚核心；最终用 C# 编写可运行的控制台文字 RPG。
+- **法语 · 晨钟之旅 A1**：扮演巡路信使，穿越十二个区域，在 156 组委托中学习问候、身份、家庭、日常、餐饮、问路、喜好与旅行。词汇、句子、语法和离线听力共同推动剧情。
 - 两门课均包含开场故事、NPC 对话、地图解锁、守关试炼、经验/等级、金币、区域遗物、旅途日志及每区域三枚真知水晶。
 - 已有课程存档可继续使用；重温已完成任务不会重复领取奖励。
 
 ### 法语宠物联盟
 
-法语 A1 现为宝可梦风格的宠物收集冒险：24 种原创宠物、8 张区域场景、8 类属性图标、初始伙伴选择和收集图鉴。96 组学习内容按回合挑战：答对发动招式，答错受到反击，体力耗尽可免费休整；全部回合完成后收服宠物。已有学习进度会自动解锁对应宠物，未结束的挑战可继续。
+法语 A1 现为宝可梦风格的宠物收集冒险：24 种原创宠物、8 张可复用区域场景、8 类属性图标、初始伙伴选择和收集图鉴。156 组学习内容按回合挑战：答对发动招式，答错受到反击，体力耗尽可免费休整；全部回合完成后收服宠物。已有学习进度会自动解锁对应宠物，未结束的挑战可继续。

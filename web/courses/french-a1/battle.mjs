@@ -12,8 +12,8 @@ export function createBattle(ui,lessons,responses) {
  let awaitingNext=false,finished=false,active=lesson.questions.find(q=>!cleared.has(q.id));
  const fields=new Map(),feedback=new Map(),move=moves[lesson.topic]??moves.综合;
  const stage=element('section',null,'pet-battle');stage.setAttribute('aria-label','宠物回合对战');
- const banner=element('div',lesson.localIndex===11?'道馆挑战 · GYM BATTLE':'野外遭遇 · WILD ENCOUNTER','pet-eyebrow');
- const arena=element('div',null,'pet-arena');arena.style.setProperty('--habitat-x',`${lesson.chapterIndex%4*100/3}%`);arena.style.setProperty('--habitat-y',`${Math.floor(lesson.chapterIndex/4)*100}%`);
+ const banner=element('div',lesson.localIndex>=12?'道馆挑战 · GYM BATTLE':'野外遭遇 · WILD ENCOUNTER','pet-eyebrow');
+ const arena=element('div',null,'pet-arena');arena.style.setProperty('--habitat-x',`${lesson.chapterIndex%4*100/3}%`);arena.style.setProperty('--habitat-y',`${Math.floor(lesson.chapterIndex/4)%2*100}%`);
  function fighter(pet,side,max) {
   const card=element('div',null,`pet-fighter ${side}`),info=element('div',null,'pet-fighter-info'),name=element('strong',`${pet.name} · ${pet.fr}`),meter=element('progress'),health=element('small');
   meter.max=max;meter.setAttribute('aria-label',`${pet.name}体力`);info.append(name,typeBadge(pet.type),meter,health);card.append(info,portrait(pet,'pet-battle-art'));arena.append(card);return {card,meter,health};

@@ -24,11 +24,12 @@ export function downloadFile(filename, value, type = 'text/plain') {
 }
 
 export function createCoursePlayer(root, context, course, renderExercise) {
+  course.adventure.prepare?.(course.chapters);
   attachAdventure(course.chapters, course.adventure);
   const adventure = course.adventure;
   let screen = 'start';
   root.innerHTML = `<section class="learning-course adventure-course">
-    <header class="learn-header"><div><h1></h1><p class="learn-subtitle"></p><div class="learn-progress"></div></div><div class="learn-tools"></div></header>
+    <header class="learn-header"><div class="learn-heading"><h1></h1><p class="learn-subtitle"></p><div class="learn-progress-row"><div class="learn-meter" role="progressbar" aria-label="课程进度" aria-valuemin="0" aria-valuemax="100"><span></span></div><div class="learn-progress"></div></div></div><div class="learn-tools"></div></header>
     <div class="learn-layout"><nav class="learn-nav" aria-label="冒险区域"></nav><main class="learn-main"></main></div>
     <dialog class="learn-dialog"><h2>AI 导师设置</h2><form method="dialog"><button class="ghost-btn">关闭</button></form><div class="ai-form"></div></dialog>
   </section>`;
@@ -38,7 +39,7 @@ export function createCoursePlayer(root, context, course, renderExercise) {
   $('.learn-subtitle').textContent = course.subtitle;
   let busy = false, cleanup = () => {}, disposed = false;
   const status = element('p', '', 'learn-status'); status.setAttribute('role', 'status');
-  const report = error => { status.textContent = error.message; status.style.color = '#a13524'; };
+  const report = error => { status.textContent = error.message; status.classList.add('error'); };
   const progress = createProgress(context, course.lessons, report);
   const current = () => course.lessons.find(lesson => lesson.id === progress.state.currentLessonId) ?? course.lessons[0];
   const ui = {
@@ -51,7 +52,7 @@ export function createCoursePlayer(root, context, course, renderExercise) {
       updateFooter();
       root.dispatchEvent(new Event('course-busy-change'));
     },
-    notify(text) { status.textContent = text; status.style.color = ''; }, report,
+    notify(text) { status.textContent = text; status.classList.remove('error'); }, report,
     save() { progress.schedule(); },
     refresh() { if(!busy) render(); },
     async record(passed, score) {
@@ -137,6 +138,9 @@ export function createCoursePlayer(root, context, course, renderExercise) {
   function renderNav() {
     const state=progress.state, hero=adventurer(state,course.lessons);
     const chapter=course.chapters[screen==='quest'?current().chapterIndex:state.mapChapter];
+    const percent=Math.round(state.completed.length/course.lessons.length*100);
+    $('.learn-meter').setAttribute('aria-valuenow',String(percent));
+    $('.learn-meter > span').style.width=`${percent}%`;
     $('.learn-progress').textContent=`${adventure.role} · Lv.${hero.level} · ✦ ${hero.xp} XP · ◉ ${hero.gold} 金币 · ◈ ${crystalsLeft(state,chapter)}/3 真知水晶 · 遗物 ${course.chapters.filter(c=>chapterComplete(c,state)).length}/${course.chapters.length}`;
     $('.learn-nav').replaceChildren(...course.chapters.map((chapter,index)=>{
       const done=chapterComplete(chapter,state), available=regionUnlocked(course.chapters,state,index);

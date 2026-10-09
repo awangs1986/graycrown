@@ -1,7 +1,7 @@
 export const adventure = {
-  title: '王冠远征', subtitle: 'C# · 七枚核心，重启北境', emblem: '♛', role: '见习符文师', theme: 'crown',
-  prologue: '黑雾吞没了北境的道路，王冠的七枚核心散落各地。你在雾港醒来，手中只有一本空白的符文手册。守灯人相信：能让指令真正运行的人，就能修复这片大陆。从点亮第一盏灯开始，穿过集市、森林与地牢，最后亲手造出一场能探索、能战斗、有结局的文字冒险。',
-  ending: '七枚核心归位，北境的路灯从海岸一直亮到王城。你交出的不再是孤立的咒文，而是一套可以运行的世界：角色会行动，战斗会改变状态，选择会通向不同结局。守灯人把王冠交给你——新的故事，现在可以由你来写。',
+  title: '王冠远征', subtitle: 'C# · 八枚核心，重启北境', emblem: '♛', role: '见习符文师', theme: 'crown',
+  prologue: '黑雾吞没了北境的道路，王冠的八枚核心散落各地。你在雾港醒来，手中只有一本空白的符文手册。守灯人相信：能让指令真正运行的人，就能修复这片大陆。从点亮第一盏灯开始，穿过集市、森林与地牢，最后亲手造出一场能探索、能战斗、有结局的文字冒险。',
+  ending: '八枚核心归位，北境的路灯从海岸一直亮到王城。你交出的不再是孤立的咒文，而是一套可以运行的世界：角色会行动，战斗会改变状态，选择会通向不同结局。守灯人把王冠交给你——新的故事，现在可以由你来写。',
   regions: [
     { name:'雾港', icon:'⚓', npc:'守灯人 · 艾达', quote:'灯塔不会猜你的意思。把每一步写清楚，它才会回应。',
       description:'灯塔的航标已经熄灭。修复欢迎信号和英雄面板，让第一艘补给船靠岸。', relic:'灯火核心', relicIcon:'✧', relicLore:'让文字与数据第一次回应你的指令。',
@@ -120,5 +120,28 @@ adventure.regions[6].quests = [
  '安全返回营地|旅人可以主动退出，也可能没有更多指令。为两种情况安排明确出口，避免游戏永远等待。|两种结束方式都能让世界平稳停下。',
  '汇合角色的命运|伤害、金币与钥匙必须属于同一位英雄。把它们集中到状态对象，让每种行动更新同一份档案。|英雄的所有变化汇入唯一的状态记录。',
  '王城前哨竞技场|在最终冒险前，用角色对象、攻击方法和主循环完成小竞技场。确认生命耗尽与退出都能正确结束。|前哨演练通过，凯把最后一扇门交给你。',
- '终章：让王冠世界运行|七道封印只剩最后一道。把营地、森林、钥匙、战斗、药水与结局组成真正可运行的文字 RPG；让不同的指令路线都得到合理回应。|你的世界完整地运行起来。七枚核心归位，王冠重新发光——这次，冒险由你亲手创造。'
+ '终章：让王冠世界运行|八道封印只剩最后一道。把营地、森林、钥匙、战斗、药水与结局组成真正可运行的文字 RPG；让不同的指令路线都得到合理回应。|你的世界完整地运行起来。八枚核心归位，王冠重新发光——这次，冒险由你亲手创造。'
 ];
+
+
+// Keep hand-authored stories for stable first-release lesson IDs. New exercises
+// inherit their chapter's NPC and get a briefing built from the actual objective.
+const legacyRegions = new Map(['cs01','cs02','cs03','cs04','cs05','cs06','cs07'].map((id,index)=>[id,adventure.regions[index]]));
+const newRegions = {
+  csoop: {name:'英雄工坊',icon:'⚒',npc:'角色导师 · 希娅',quote:'一位英雄的状态，应由这位英雄自己守护。',description:'用类、属性、构造方法和异常处理打造可靠的冒险队伍。',relic:'英雄核心',relicIcon:'◆',relicLore:'让角色带着完整的能力与状态踏入王城。'}
+};
+adventure.prepare = chapters => {
+  adventure.subtitle=`C# · ${chapters.length} 枚核心，重启北境`;
+  adventure.regions = chapters.map(chapter => {
+    const source=legacyRegions.get(chapter.id) ?? newRegions[chapter.id];
+    if(!source)throw new Error(`Unknown C# adventure region: ${chapter.id}`);
+    const quests=chapter.lessons.map((lesson,index)=>{
+      const match=/^(cs\d\d)-(\d\d)$/.exec(lesson.id);
+      const old=match&&match[1]===chapter.id?legacyRegions.get(match[1])?.quests[Number(match[2])-1]:undefined;
+      if(old)return old;
+      const objective=lesson.objective.replaceAll('|','／');
+      return `${lesson.title}|${source.npc} 交给你新的符文委托：${objective} 运用本课语法让指令真正运行。|${lesson.title}的符文稳定运行，${source.name}又恢复了一处通路。`;
+    });
+    return {...source,quests};
+  });
+};

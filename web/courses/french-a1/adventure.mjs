@@ -1,8 +1,8 @@
 import { encounter } from './pets.mjs';
 export const adventure = {
-  title:'晨钟宠物联盟', subtitle:'法语 A1 · 与伙伴挑战八座道馆', emblem:'◉', role:'见习宠物训练师', theme:'pets',
-  prologue:'晨钟停止鸣响，八条驿路被遗忘之雾隔开。你选择一只初始宠物，前往港口、村庄与王都挑战八座道馆。野生宠物用法语发起试炼：答对就能发动招式，赢得信任后即可收服。集齐八枚徽章，让晨钟再次响起。这里的人说法语；一句问候、一张读懂的车票、一次听清的请求，都能帮助一个人，也能让道路重新打开。你的旅途从 bonjour 开始。',
-  ending:'八枚钟音在王都重聚。晨钟响起，港口的问候、村庄的家书和车站的广播又连接成一条完整的驿路。你已能在熟悉的 A1 场景里读、写、听懂简单法语。联盟博士把新的空白地图交给你：今天的旅程结束，下一次交流已经可以开始。',
+  title:'晨钟宠物联盟', subtitle:'法语 A1 · 与伙伴挑战十二座道馆', emblem:'◉', role:'见习宠物训练师', theme:'pets',
+  prologue:'晨钟停止鸣响，十二条驿路被遗忘之雾隔开。你选择一只初始宠物，前往港口、村庄与王都挑战十二座道馆。野生宠物用法语发起试炼：答对就能发动招式，赢得信任后即可收服。集齐十二枚徽章，让晨钟再次响起。这里的人说法语；一句问候、一张读懂的车票、一次听清的请求，都能帮助一个人，也能让道路重新打开。你的旅途从 bonjour 开始。',
+  ending:'十二枚钟音在王都重聚。晨钟响起，港口的问候、村庄的家书和车站的广播又连接成一条完整的驿路。你已能在熟悉的 A1 场景里读、写、听懂简单法语。联盟博士把新的空白地图交给你：今天的旅程结束，下一次交流已经可以开始。',
   regions:[]
 };
 const regions = [
@@ -104,7 +104,7 @@ const regions = [
     '聚会筹备日|结合词汇、句式与听力，处理伙伴们的请求。|花园的座椅和灯笼准备好了。',
     '守关：花园晚会|通过喜好与生活场景综合挑战，帮助聚会顺利开始。|心意之音伴着音乐响起，王都车站的路出现了。'
   ]],
-  ['王都车站','♜','站长 · Paul','启程之音','最后一段路，要把学过的话带在身边。','帮助旅人安排去巴黎的行程，把八枚钟音送回王都。',[
+  ['王都车站','♜','站长 · Paul','启程之音','最后一段路，要把学过的话带在身边。','帮助旅人安排去巴黎的行程，把十二枚钟音送回王都。',[
     '站台词汇牌|认出旅行相关词汇，修复站台的提示牌。|站台的提示重新可读。',
     '选择行程词语|挑选正确词条，为旅人整理行程。|行程的词条找到了位置。',
     '售票窗的便条|写好所需词汇，补齐售票窗口的索引。|售票员重新开始办理业务。',
@@ -116,7 +116,7 @@ const regions = [
     '听写启程口信|记录录音里的法语，帮同伴保存口信。|同伴收到了清楚的启程口信。',
     '阅读旅途短文|读懂短文，确认旅途中的安排。|旅途信息核对完成。',
     'Marie 的旅程|综合理解同行者、车票与时间相关信息，协助出行。|旅人带着整理好的信息前往站台。',
-    '终章：让晨钟再响|完成涵盖八段旅途的 A1 综合试炼，把词汇、句子、语法与听力串成最后一次委托。|启程之音归位，八枚钟音同时鸣响。失落的驿路全部恢复，你成为了晨钟联盟训练师。'
+    '终章：让晨钟再响|完成涵盖十二段旅途的 A1 综合试炼，把词汇、句子、语法与听力串成最后一次委托。|启程之音归位，十二枚钟音同时鸣响。失落的驿路全部恢复，你成为了晨钟联盟训练师。'
   ]]
 ];
 adventure.regions = regions.map(([name,icon,npc,relic,quote,description,quests]) => ({name,icon,npc,relic,quote,description,quests,relicIcon:'♪',relicLore:description}));
@@ -131,3 +131,28 @@ adventure.regions.forEach((region,chapterIndex)=>{
   return `${localIndex===11?'道馆挑战':'宠物挑战'} · ${pet.name}｜${title}|${story} ${pet.name} 拦住了去路：用本次法语知识与它进行回合挑战，赢得它的信任。|${aftermath} ${pet.name} 认可了你的法语招式，愿意加入队伍。`;
  });
 });
+
+
+const legacyRegions = new Map(['fr01','fr02','fr03','fr04','fr05','fr06','fr07','fr08'].map((id,index)=>[id,adventure.regions[index]]));
+const newRegions = {
+ 'fr-basics':{name:'启程训练营',icon:'✦',npc:'训练导师 · Anne',quote:'先读懂字母与数字，再让伙伴听懂你的话。',description:'认识字母、拼写、数字与 tu/vous，和第一只伙伴建立默契。',relic:'启程徽章',relicIcon:'✦',relicLore:'掌握法语入门发音与基本表达。'},
+ 'fr-time':{name:'滴答山谷',icon:'◷',npc:'钟表师 · Luc',quote:'报准时间，旅途才不会错过约定。',description:'学习时间、日常作息与简单动词，让钟表宠物恢复节奏。',relic:'时钟徽章',relicIcon:'◷',relicLore:'听懂并表达时间与日常安排。'},
+ 'fr-invite':{name:'邀请花园',icon:'✿',npc:'园丁 · Inès',quote:'一句邀请，可以让新的朋友加入队伍。',description:'用爱好与邀请句式和花园里的宠物交朋友。',relic:'友谊徽章',relicIcon:'✿',relicLore:'表达喜好并发出简单邀请。'},
+ 'fr-health':{name:'治愈林地',icon:'✚',npc:'医师 · Camille',quote:'先说清哪里不舒服，才能照顾好伙伴。',description:'辨认身体部位与健康表达，帮助受伤的宠物。',relic:'治愈徽章',relicIcon:'✚',relicLore:'理解基础身体与健康用语。'}
+};
+adventure.prepare = chapters => {
+ adventure.subtitle=`法语 A1 · 与伙伴挑战 ${chapters.length} 座道馆`;
+ adventure.regions=chapters.map(chapter=>{
+  const source=legacyRegions.get(chapter.id)??newRegions[chapter.id];
+  if(!source)throw new Error(`Unknown French adventure region: ${chapter.id}`);
+  const quests=chapter.lessons.map((lesson,index)=>{
+   const match=/^(fr\d\d)-(\d\d)$/.exec(lesson.id);
+   const old=match?legacyRegions.get(match[1])?.quests[Number(match[2])-1]:undefined;
+   if(old)return old;
+   const pet=encounter(lesson),boss=index===chapter.lessons.length-1;
+   const prompt=lesson.questions[0]?.prompt?.replaceAll('|','／')??lesson.topic;
+   return `${boss?'道馆挑战':'宠物挑战'} · ${pet.name}｜${lesson.title}|${source.npc} 带你来到${source.name}，${pet.name}正在等待法语挑战。先完成「${prompt}」，再用本课的${lesson.topic}知识继续推进。|你完成了${lesson.title}，${pet.name}认可你的法语招式，成为新的伙伴。`;
+  });
+  return {...source,quests};
+ });
+};
