@@ -2,7 +2,7 @@
 
 <p align="right"><a href="README.zh-CN.md"><kbd>🇨🇳 中文</kbd></a></p>
 
-**Gray Crown** is an offline learning application with a C adventure, a C# beginner course, French A1, and an English comic RPG aligned to the New Concept English Books 1–2 syllabus.
+**Gray Crown** is an offline learning application with a C adventure, a C# beginner course, French A1, an English comic RPG aligned to the New Concept English Books 1–2 syllabus, and a classical physics foundations course adapted from OpenStax.
 
 Seven runes are scattered across the North. Players travel through 7 chapters and 140 short trials. Every trial has a vivid adventure story, a clear objective, up to three hints, and a built-in C editor. When the player submits code, the game compiles and runs it inside an isolated WebAssembly sandbox, then checks whether the result is correct.
 
@@ -20,6 +20,7 @@ All four courses are available:
 | C# | 8 chapters, 96 exercises, real compilation and 189 input/output cases | Build a console text RPG from scratch, step by step |
 | French A1 | 12 units (alphabet → travel), 156 exercises, 192 vocabulary entries, 228 offline audio clips | Progressive vocabulary, sentences, grammar, listening and unit tests with fresh items |
 | English · Comic City (NCE 1–2 syllabus) | 25 units (15 Book-1-aligned + 10 Book-2-aligned), 325 quests, 250 vocabulary entries, 325 offline MP3 clips, one original comic panel per question | Original dialogues/stories following the NCE grammar sequence; contraction- and UK/US-spelling-tolerant grading |
+| Classical Physics (adapted from OpenStax, Chinese) | 11 units, 33 teach→test stages + 11 unit exams, 158 questions (110 numeric), 33 realistic Commons photos, KaTeX formulas offline | Every stage: concept + formula + step-by-step worked example, then a quiz that unlocks only after reading; numeric judge accepts 2 % rounding, scientific notation and unit conversion. Credits: [web/courses/physics/CREDITS.md](web/courses/physics/CREDITS.md) |
 
 The new courses use Chinese teaching explanations. C# accepts prefilled console input in the browser and exports source for a native .NET console project. French includes choices, typing, word ordering, dictation and reading; attributed synthetic audio supports slow playback. Course content credits: [web/courses/french-a1/CREDITS.md](web/courses/french-a1/CREDITS.md), [web/courses/english-nce/CREDITS.md](web/courses/english-nce/CREDITS.md) (aligned to the NCE syllabus, original content).
 
@@ -79,6 +80,10 @@ See [LICENSE](LICENSE).
 - **法语 · 晨钟之旅 A1**：扮演巡路信使，穿越十二个区域，在 156 组委托中学习问候、身份、家庭、日常、餐饮、问路、喜好与旅行。词汇、句子、语法和离线听力共同推动剧情。
 - 两门课均包含开场故事、NPC 对话、地图解锁、守关试炼、经验/等级、金币、区域遗物、旅途日志及每区域三枚真知水晶。
 - 已有课程存档可继续使用；重温已完成任务不会重复领取奖励。
+
+### 经典物理入门（改编自 OpenStax）
+
+讲解与例题改编自 OpenStax《Physics》（流体单元改编自《College Physics》第 1 版），均为 CC BY 4.0，已译为简体中文并改写。11 个单元：测量与单位、一维运动、二维运动与抛体、牛顿定律与力、圆周运动与万有引力、功能与功率、动量与碰撞、转动与力矩、流体、振动波与声音、温度与热。每个阶段固定为“先讲解（概念 + KaTeX 公式 + 分步例题）→ 读完后解锁测验”，单元末先公式回顾再综合测试。数值题容许 2% 误差，支持科学计数法与单位换算；所有数值答案由测试脚本逐题重新计算。每个阶段配一张直接展示该物理现象的真实照片（Wikimedia Commons，逐张署名见 [CREDITS](web/courses/physics/CREDITS.md)）。界面为简洁的“实验笔记本”风格，不使用 RPG 元素。
 
 ### 英语 · 漫画城大冒险（新概念 1–2 册大纲）
 

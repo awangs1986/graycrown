@@ -126,3 +126,43 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+
+================================================================
+KaTeX (bundled offline for formula rendering in the physics course):
+The MIT License (MIT)
+
+Copyright (c) 2013-2020 Khan Academy and other contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================================================================
+Physics course text (web/courses/physics/):
+Adapted from OpenStax, Physics (Rice University, 2020), https://openstax.org/details/books/physics
+and OpenStax, College Physics (1st ed., Rice University, 2012), https://openstax.org/details/books/college-physics
+Both licensed CC BY 4.0, https://creativecommons.org/licenses/by/4.0/
+Changes: translated into Simplified Chinese, reorganised, condensed and rewritten; example values changed;
+all quiz and exam questions are original. Not endorsed by OpenStax or Rice University.
+(OpenStax College Physics 2e is CC BY-NC-SA 4.0 and was NOT used.)
+
+Physics course photographs (web/public/art/physics/*.webp):
+33 photos from Wikimedia Commons (public domain, CC0, CC BY 2.0/3.0/4.0, CC BY-SA 2.0/2.5/3.0/4.0),
+resized and re-encoded as WebP. Per-image author, license and source URL:
+web/courses/physics/CREDITS.md and web/courses/physics/images.mjs. Adapted CC BY-SA photos remain
+available under the same CC BY-SA license as the original.

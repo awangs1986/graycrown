@@ -47,7 +47,8 @@ export async function mount(root, context) {
     "c": { "version": 2, "started": false },
     "csharp": { "version": 1 },
     "french-a1": { "version": 1 },
-    "english-nce": { "version": 1 }
+    "english-nce": { "version": 1 },
+    "physics": { "version": 1 }
   }
 }
 ```
@@ -73,6 +74,8 @@ C# 和法语使用内部 v1 进度，记录当前题目、通关列表、作答�
 ## 法语 A1 课程与音频
 
 `web/courses/french-a1/` 包含 12 单元、156 个练习、192 项词汇：入门（字母、拼读、数字）→ 问候 → 身份与疑问句 → 家庭 → 日常 → 时间与作息 → 餐饮 → 城市与住房 → 喜好、天气与衣着 → 爱好与邀请 → 身体与健康 → 旅行与计划。题型包含选择、填空、排序、听力理解、听写、阅读及综合测试。每单元 13 个练习，含 6 道以上不重复的语法题；章节测试和毕业测试使用练习中没出现过的新题（毕业测试含 14 小题）。翻译题可接受多种正确表达（`answers` 中任一项或可选 `alternates`）。首版 8 个单元的练习保留原位置 ID（如 `fr02-08`），新增练习使用语义 ID（如 `fr02-drill`、`fr-health-exam`）。课程教学说明采用中文；内容来源见 `CREDITS.md`。
+
+`web/courses/physics/` 是经典物理入门：内容在 `content-a/b/c.mjs`（改编自 OpenStax，CC BY 4.0），`course.mjs` 生成固定 ID：阶段 `ph05-02`、单元测试 `ph05-exam`，题目 `ph05-02-q1`、`ph05-exam-1`。进度沿用 `shared/progress.mjs`，`responses[课程ID] = { read, answers, attempts }`；`read` 为真才渲染测验。`judge.mjs` 为数值判题（相对误差、科学计数法、单位换算）；每道数值题带 `verify` 表达式，由 `tests/physics-course.test.mjs` 独立计算校验。照片在 `web/public/art/physics/`，署名在 `images.mjs` 与 `CREDITS.md`。播放器 `player.mjs` 独立于 RPG 共享播放器，使用打包的 KaTeX 离线渲染公式。
 
 `web/courses/english-nce/` 是对齐《新概念英语》第一、二册语法大纲的原创英语课程：25 单元（`en1-01`…`en1-15` 对应第一册，`en2-01`…`en2-10` 对应第二册）、325 个练习、250 项词汇、325 段离线 MP3（`web/public/audio/en`，`scripts/generate-english-audio.mjs` 生成）。课程 ID 为显式固定格式 `<单元>-<题型编号>`（如 `en1-01-01` 认识新词、`en1-01-13` Boss 综合测试），题型编号由 `LESSON_NUMBERS` 固定，不依赖数组位置。`judge.mjs` 比较时展开缩写（I'm = I am）、兼容英美拼写；`art.mjs` 基于共享漫画组件库 `shared/comic-kit.mjs`（地点、固定角色、日常道具），`course.mjs` 根据每道题的英文内容自动选择场景与道具，为每道题生成一幅插图；`battle.mjs` 沿用回合规则，对手是原创捣蛋鬼 Muddle 先生，收集物为“漫画册”页面。不使用任何第三方或商业 IP 角色。内容声明见 `CREDITS.md`。
 
