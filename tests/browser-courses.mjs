@@ -10,6 +10,7 @@ import { lessons as csLessons } from '../web/courses/csharp/course.mjs';
 import { lessons as frLessons } from '../web/courses/french-a1/course.mjs';
 import { lessons as enLessons } from '../web/courses/english-nce/course.mjs';
 import { lessons as phLessons } from '../web/courses/physics/course.mjs';
+import { lessons as omLessons } from '../web/courses/olympiad/course.mjs';
 import { gradeCode } from '../web/courses/csharp/judge.mjs';
 
 const root=process.cwd();
@@ -36,7 +37,7 @@ try{
   await page.goto(url);await page.locator('.course-card').first().waitFor();
   assert.equal(await page.locator('.course-card button:disabled').count(),0);
   assert.ok(!requests.some(value=>value.includes('/csharp/')));
-  await page.screenshot({path:path.join(evidence,'01-courses.png'),fullPage:true});pass('Five available courses; no eager compiler load.');
+  await page.screenshot({path:path.join(evidence,'01-courses.png'),fullPage:true});pass('All available courses; no eager compiler load.');
 
   // Reuse the worker for reference regression only. Production uses a fresh worker per submission.
   await page.evaluate(()=>{
@@ -250,6 +251,45 @@ var post = type.GetMethod("PostAsync", new[] {typeof(string), http.GetType("Syst
   const ts=await still.getAttribute('data-t');await page.waitForTimeout(400);assert.equal(await still.getAttribute('data-playing'),'false');assert.equal(await still.getAttribute('data-t'),ts);
   await page.emulateMedia({reducedMotion:'no-preference'});await backToLibrary();
   pass('Physics junior layer: animation plays/pauses/slider, hooks+experiments render, hint + explanation after a wrong answer, reduced motion shows a still frame.');
+  // Olympiad: teach (pre-rendered Remotion video + captions + step reveal) → quiz; reduced motion shows the poster.
+  const omShots=process.env.OLYMPIAD_SHOTS||evidence;await mkdir(omShots,{recursive:true});
+  await page.locator('.course-card[data-course-id="olympiad"]').scrollIntoViewIfNeeded();
+  await page.locator('.course-card[data-course-id="olympiad"]').screenshot({path:path.join(omShots,'olympiad-shelf-card.png')});
+  await page.screenshot({path:path.join(omShots,'olympiad-shelf.png'),fullPage:true});
+  const om1=omLessons[0];
+  await page.locator('.course-card[data-course-id="olympiad"] button').click();await page.locator('.om-teach').waitFor();
+  assert.equal(await page.locator('.om-quiz.locked').count(),1);assert.equal(await page.locator('.om-question').count(),0);
+  const video=page.locator('.om-teach video');
+  assert.equal(await video.evaluate(v=>new URL(v.currentSrc||v.src).pathname),'/video/olympiad/om01-01.webm');
+  await video.evaluate(v=>v.readyState>=1?1:new Promise((ok,fail)=>{v.onloadedmetadata=ok;v.onerror=()=>fail(new Error('video failed to load'));}));
+  assert.ok(await video.evaluate(v=>v.duration)>10,'video has a real duration');
+  assert.equal(await page.locator('.om-teach video track[srclang="zh-CN"]').count(),1);
+  await page.getByRole('button',{name:'▶ 播放动画'}).click();await page.waitForFunction(()=>document.querySelector('.om-teach video').currentTime>1.5,null,{timeout:15000});
+  await page.locator('.om-play').click();assert.equal(await video.evaluate(v=>v.paused),true);
+  await video.evaluate(v=>{v.currentTime=9;return new Promise(ok=>v.onseeked=ok);});
+  while(await page.getByRole('button',{name:'显示下一步解答'}).isVisible())await page.getByRole('button',{name:'显示下一步解答'}).click();
+  await page.addStyleTag({content:'#courseNavigation{position:static!important}'});await page.locator('.om-teach').screenshot({path:path.join(omShots,'olympiad-teach-video.png')});
+  await page.getByRole('button',{name:/我已读完讲解/}).click();await page.locator('.om-question').first().waitFor();
+  const answerOm=async lesson=>{for(const q of lesson.questions){const field=page.locator(`[data-question-id="${q.id}"]`);
+    if(q.type==='choice')await field.locator('input[type=radio]').evaluateAll((els,v)=>els.find(e=>e.value===v).click(),q.answer);else await field.locator('input[type=text]').fill(String(q.answer));}};
+  const omNum=om1.questions.find(q=>q.type==='numeric');
+  await answerOm(om1);await page.locator(`[data-question-id="${omNum.id}"] input`).fill(String(omNum.answer+1));
+  await page.locator(`[data-question-id="${om1.questions[0].id}"] .om-hint-btn`).click();
+  await page.getByRole('button',{name:'提交测验'}).click();await page.locator(`[data-question-id="${omNum.id}"] .om-explain`).waitFor();
+  await page.locator('.om-quiz').screenshot({path:path.join(omShots,'olympiad-quiz.png')});
+  await page.locator(`[data-question-id="${omNum.id}"] input`).fill(String(omNum.answer));await page.getByRole('button',{name:'提交测验'}).click();await page.locator('.om-summary.pass').waitFor();
+  assert.equal(await page.locator(`.om-nav-item[data-lesson-id="${omLessons[1].id}"]`).isDisabled(),false);
+  assert.equal(await page.locator(`.om-nav-item[data-lesson-id="${omLessons[2].id}"]`).isDisabled(),true);
+  await backToLibrary();
+  save=JSON.parse(await readFile(path.join(evidence,'save/progress.json'),'utf8'));
+  assert.deepEqual(save.courses.olympiad.completed,[om1.id]);assert.ok(save.courses.physics.completed.length>0,'physics progress untouched');
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.locator('.course-card[data-course-id="olympiad"] button').click();await page.locator('.om-video.reduced img').waitFor();
+  assert.equal(await page.locator('.om-teach video').count(),0);
+  await page.locator('.om-video.reduced img').evaluate(img=>img.complete&&img.naturalWidth>0?1:new Promise((ok,fail)=>{img.onload=ok;img.onerror=fail;}));
+  assert.ok(await page.locator('.om-solution li').count()>=3,'reduced motion shows all steps as text');
+  await page.emulateMedia({reducedMotion:'no-preference'});await backToLibrary();
+  pass('Olympiad: Remotion video loads with Chinese captions, plays/pauses; quiz locked until read; hint + explanation; progress saved; reduced motion shows poster + steps.');
   await page.setViewportSize({width:390,height:844});await page.screenshot({path:path.join(evidence,'06-mobile.png'),fullPage:true});
   assert.deepEqual(errors,[]);pass('No uncaught browser errors.');
 }catch(error){reports.push('FAIL '+error.stack);console.error(error);process.exitCode=1;}

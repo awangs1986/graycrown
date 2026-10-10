@@ -1,0 +1,38 @@
+/* Olympiad course: warm "thinking notebook" — cream paper, dotted grid, tangerine + teal accents. */
+.olympiad-course { --om-ink: #2a2433; --om-muted: #6b6475; --om-paper: #fffaf0; --om-card: #fff; --om-line: #eadfcb; --om-orange: #e8730c; --om-orange-soft: #fff0df; --om-teal: #0f8a7e; --om-teal-soft: #e2f5f2; --om-red: #c2412d;
+  color: var(--om-ink); background: var(--om-paper) radial-gradient(rgba(232,115,12,.14) 1px, transparent 1.4px) 0 0 / 22px 22px;
+  font-family: "Noto Sans SC", "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif; min-height: 100vh; padding: 20px clamp(12px, 3vw, 36px) 48px; box-sizing: border-box; }
+.olympiad-course * { box-sizing: border-box; }
+.om-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; padding: 18px 22px; background: var(--om-card); border: 2px solid var(--om-line); border-radius: 18px; box-shadow: 0 6px 0 var(--om-line); }
+.om-eyebrow { margin: 0; letter-spacing: .14em; font-size: 12px; color: var(--om-orange); font-weight: 800; }
+.om-header h1 { margin: 4px 0; font-size: clamp(26px, 3vw, 34px); } .om-sub { margin: 0; color: var(--om-muted); }
+.om-meter-wrap { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.om-meter { width: 200px; height: 10px; border-radius: 5px; background: var(--om-line); overflow: hidden; } .om-meter > span { display: block; height: 100%; background: linear-gradient(90deg, var(--om-orange), var(--om-teal)); transition: width .3s; }
+.om-meter-label { color: var(--om-muted); font-size: 14px; }
+.om-layout { display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: 20px; margin-top: 20px; align-items: start; } @media (max-width: 900px) { .om-layout { grid-template-columns: 1fr; } }
+.om-nav { background: var(--om-card); border: 2px solid var(--om-line); border-radius: 16px; padding: 10px; position: sticky; top: 64px; max-height: calc(100vh - 84px); overflow: auto; }
+.om-grade { margin: 10px 4px 4px; padding: 4px 10px; border-radius: 999px; font-weight: 800; font-size: 13px; background: var(--om-orange-soft); color: var(--om-orange); }
+.om-grade.grade-high, .om-grade.grade-junior { background: var(--om-teal-soft); color: var(--om-teal); }
+.om-nav-unit { padding: 4px 4px 8px; position: relative; } .om-nav-unit h3 { margin: 4px 40px 4px 4px; font-size: 14px; } .om-nav-unit > small { position: absolute; right: 8px; top: 8px; color: var(--om-muted); }
+.om-nav-item { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 6px 8px; border-radius: 8px; color: var(--om-ink); font: inherit; font-size: 14px; cursor: pointer; }
+.om-nav-item:hover:not(:disabled) { background: var(--om-orange-soft); } .om-nav-item.active { background: var(--om-orange); color: #fff; } .om-nav-item.done:not(.active) { color: var(--om-teal); } .om-nav-item:disabled { color: #aaa2b3; cursor: not-allowed; }
+.om-main { min-width: 0; } .om-topic { margin: 0; color: var(--om-orange); font-weight: 700; font-size: 14px; } .om-main > h2 { margin: 4px 0 10px; font-size: clamp(22px, 2.6vw, 30px); }
+.om-step { background: var(--om-card); border: 2px solid var(--om-line); border-radius: 16px; padding: 18px 22px; margin: 16px 0; }
+.om-step-label { display: inline-block; margin: 0 10px 10px 0; padding: 3px 12px; border-radius: 999px; background: var(--om-ink); color: #fff; font-size: 13px; font-weight: 700; }
+.om-method { display: inline-block; padding: 3px 12px; border-radius: 999px; background: var(--om-teal-soft); color: var(--om-teal); font-weight: 700; font-size: 13px; }
+.om-hook, .om-life, .om-funfact { border-radius: 12px; padding: 10px 14px; margin: 10px 0; } .om-hook { background: var(--om-orange-soft); } .om-life { background: #f3f0ff; } .om-funfact { background: #fff7cc; }
+.om-hook p, .om-life p, .om-funfact p, .om-concept p { margin: 6px 0 0; line-height: 1.85; font-size: 16px; }
+.om-example { border-top: 2px dashed var(--om-line); margin-top: 14px; padding-top: 6px; } .om-problem { font-size: 17px; font-weight: 600; }
+.om-video { margin: 12px 0; background: #1c1825; border-radius: 14px; overflow: hidden; } .om-video video, .om-video img { display: block; width: 100%; aspect-ratio: 16/9; background: #fffaf0; }
+.om-video-bar { display: flex; gap: 10px; padding: 10px; background: #2a2433; } .om-video figcaption { color: #fff; padding: 0 12px 10px; font-size: 13px; background: #2a2433; } .om-video .om-note { color: #fff; margin: 0; padding: 0 12px 10px; font-size: 13px; }
+.om-solution li { line-height: 1.9; font-size: 16px; } .om-example-answer { font-weight: 800; color: var(--om-teal); }
+.om-btn { font: inherit; border: 2px solid var(--om-ink); background: #fff; color: var(--om-ink); border-radius: 999px; padding: 6px 16px; cursor: pointer; font-weight: 700; }
+.om-btn.primary { background: var(--om-orange); border-color: var(--om-orange); color: #fff; } .om-btn.ghost { border-color: var(--om-line); } .om-btn:disabled { opacity: .5; cursor: not-allowed; }
+.om-finish-teach { margin-top: 12px; }
+.om-question { border: 2px solid var(--om-line); border-radius: 12px; margin: 12px 0; padding: 12px 14px; } .om-question.right { border-color: var(--om-teal); background: var(--om-teal-soft); } .om-question.wrong { border-color: var(--om-red); background: #fdecea; }
+.om-question legend { font-weight: 600; display: flex; gap: 8px; align-items: baseline; } .om-qnum { background: var(--om-orange); color: #fff; border-radius: 50%; width: 24px; height: 24px; display: inline-grid; place-items: center; font-size: 13px; flex: none; }
+.om-choice { display: flex; gap: 8px; padding: 6px 4px; cursor: pointer; } .om-input { font: inherit; padding: 6px 10px; border: 2px solid var(--om-line); border-radius: 8px; width: 160px; display: block; margin: 6px 0; }
+.om-hint-btn { margin-top: 6px; font-size: 13px; } .om-hint-text, .om-explain { color: var(--om-muted); } .om-summary.pass { color: var(--om-teal); font-weight: 800; } .om-summary.retry { color: var(--om-red); font-weight: 700; }
+.om-locked-note { color: var(--om-muted); } .om-footer { display: flex; justify-content: space-between; margin-top: 16px; } .om-status.error { color: var(--om-red); }
+.om-dialog { max-width: 640px; border-radius: 16px; border: 2px solid var(--om-line); line-height: 1.7; }
+@media (prefers-color-scheme: dark) { .olympiad-course { --om-ink: #f2ecf8; --om-muted: #b9b1c4; --om-paper: #1b1722; --om-card: #26212f; --om-line: #3d3548; --om-orange-soft: #3a2a1a; --om-teal-soft: #173430; } .om-life { background: #2c2840; } .om-funfact { background: #3a3518; } .om-btn { background: var(--om-card); } }
