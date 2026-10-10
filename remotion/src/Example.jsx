@@ -24,7 +24,7 @@ export const Example = ({ lesson, visual }) => {
   const prog = Math.min(1, f / total);
   const deco = crayonize(<g>
     <path d="M40 72 Q 300 64 560 74 T 1000 70" stroke={C.orange} strokeWidth={5} fill="none" />
-    <rect x={28} y={608} width={1224} height={86} rx={22} fill="#fffdf5" stroke={C.ink} strokeWidth={4} />
+    <rect x={28} y={614} width={1224} height={82} rx={22} fill="#fffdf5" stroke={C.ink} strokeWidth={4} />
     <g transform={`rotate(${(boil % 3) * 4} 1205 62)`}><circle cx={1205} cy={62} r={26} fill={C.yellow} stroke={C.orange} strokeWidth={3} />{[0, 1, 2, 3, 4, 5, 6, 7].map(i => { const a = i * Math.PI / 4; return <line key={i} x1={1205 + 34 * Math.cos(a)} y1={62 + 34 * Math.sin(a)} x2={1205 + 46 * Math.cos(a)} y2={62 + 46 * Math.sin(a)} stroke={C.orange} strokeWidth={4} />; })}</g>
     <path d="M1080 60 q 10 -22 30 -10 q 14 -20 34 -2 q 22 0 14 18 z" fill="#ffffff" stroke={C.blue} strokeWidth={3} />
     <line x1={50} y1={705} x2={50 + 1180 * prog} y2={705} stroke={C.teal} strokeWidth={7} />
@@ -34,6 +34,6 @@ export const Example = ({ lesson, visual }) => {
       <g filter="url(#waxStatic)">{deco}</g><g filter="url(#wax)"><g transform="translate(0 170)">{crayonize(<Visual f={f} step={step} at={at} all={f / total} />, boil, 'v')}</g></g>
       <T x={40} y={52} a="start" s={26} c={C.orange}>{lesson.method} · {lesson.title}</T>
       {wrap(lesson.problem, 38).slice(0, 2).map((line, i) => <T key={i} x={40} y={108 + i * 40} a="start" s={30}>{line}</T>)}
-      <T x={640} y={662} s={step < 0 ? 32 : (cap.length > 34 ? 28 : 32)} c={C.ink}>{cap}</T>
+      <T x={640} y={666} s={step < 0 ? 32 : (cap.length > 34 ? 28 : 32)} c={C.ink}>{cap}</T>
     </svg></AbsoluteFill>;
 };

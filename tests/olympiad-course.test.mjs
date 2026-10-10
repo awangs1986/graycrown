@@ -73,3 +73,11 @@ test('OpenStax (CC BY-NC-SA) adaptation is isolated in its own file with license
   assert.deepEqual(chapters.filter(c => c.source === 'openstax').map(c => c.id), ['om15']);
   for (const f of ['web/courses/olympiad/CREDITS.md', 'THIRD_PARTY_NOTICES.txt', 'README.md', 'README.zh-CN.md']) assert.match(await readFile(f, 'utf8'), /CC BY-NC-SA/, f);
 });
+
+test('olympiad crayon kit: fonts cover all composition text, licenses bundled', async () => {
+  const { readFile: rf } = await import('node:fs/promises');
+  const kit = await rf('remotion/src/crayon.jsx', 'utf8'); assert.match(kit, /roughjs/); assert.match(kit, /feDisplacementMap/);
+  const ofl = await rf('remotion/public/ZCOOLKuaiLe-OFL.txt', 'utf8'); assert.match(ofl, /SIL Open Font License/);
+  const notices = await rf('THIRD_PARTY_NOTICES.txt', 'utf8'); assert.match(notices, /ZCOOL KuaiLe/); assert.match(notices, /rough\.js/);
+  assert.ok((await stat('remotion/public/ZCOOLKuaiLe-subset.woff2')).size > 20_000);
+});

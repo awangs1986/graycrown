@@ -47,7 +47,7 @@ export const venn = ({ at }) => <g>
   <T x={470} y={180} s={28} c={C.orange}>足球 25</T><T x={810} y={180} s={28} c={C.teal}>篮球 20</T>
   <T x={640} y={200} s={34} c={C.purple} o={at(0)}>10</T><T x={640} y={235} s={22} c={C.purple} o={at(0)}>都喜欢</T>
   <T x={960} y={330} s={30} c={C.red} o={at(2)}>5</T>
-  <T x={640} y={395} s={32} o={at(1)}>至少喜欢一样：25 + 20 − 10 = 35</T><T x={640} y={428} s={32} c={C.red} o={at(2)}>都不喜欢：40 − 35 = 5 人</T></g>;
+  <T x={640} y={382} s={30} o={at(1)}>至少喜欢一样：25 + 20 − 10 = 35</T><T x={640} y={424} s={30} c={C.red} o={at(2)}>都不喜欢：40 − 35 = 5 人</T></g>;
 
 export const pigeon = ({ at }) => { const cols = [C.red, C.yellow, C.blue]; const balls = [0, 1, 2, 0]; return <g>
   {range(3).map(i => <g key={i}><rect x={260 + i * 280} y={200} width={200} height={150} rx={12} fill="#fff" stroke={cols[i]} strokeWidth={6} opacity={at(0)} /><T x={360 + i * 280} y={390} s={26} c={cols[i]} o={at(0)}>{['红', '黄', '蓝'][i]}</T></g>)}

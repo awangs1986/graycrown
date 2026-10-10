@@ -27,4 +27,5 @@
 
 ## 工具与字体
 - 动画用 [Remotion](https://www.remotion.dev) 预先渲染为 WebM（VP9），源代码在 `remotion/`。Remotion License：个人、≤3 人的公司和非营利组织可免费使用。
-- 动画内中文字体：Noto Sans SC（Google / Adobe，SIL Open Font License 1.1），只打包用到的字形子集（`remotion/public/`）。
+- 动画为儿童蜡笔插画风格：手绘线条用 [rough.js](https://github.com/rough-stuff/rough)（MIT），蜡笔质感用 SVG 滤镜实现（`remotion/src/crayon.jsx`）。30 段视频合计约 25 MB（WebM 约 24.7 MB，加封面和字幕约 27 MB）。
+- 动画内中文字体：站酷快乐体 ZCOOL KuaiLe（SIL Open Font License 1.1，许可全文 `remotion/public/ZCOOLKuaiLe-OFL.txt`）；个别符号由 Noto Sans SC（SIL OFL 1.1）补字。都只打包用到的字形子集（`remotion/public/`）。

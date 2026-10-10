@@ -13,8 +13,8 @@ export const completeSquare = ({ at }) => { const u = 40, x = 6 * u, b = 3 * u, 
 export const diffSquares = ({ at }) => { const s = 300, t = 60, ox = 200, oy = 50; const k = lerp(at(1), 0, 1); return <g>
   <rect x={ox} y={oy} width={s} height={s} fill={C.tealSoft} stroke={C.teal} strokeWidth={4} /><rect x={ox + s - t} y={oy + s - t} width={t} height={t} fill="#fff" stroke={C.red} strokeWidth={4} strokeDasharray="8 6" opacity={at(0)} />
   <T x={ox + s / 2} y={oy - 12} s={26}>100</T><T x={ox + s - t / 2} y={oy + s + 34} s={24} c={C.red} o={at(0)}>1</T>
-  <g opacity={at(1)}><rect x={620} y={160} width={s + t} height={s - t} fill={C.orangeSoft} stroke={C.orange} strokeWidth={4} transform={`translate(${(1 - k) * -100} 0)`} />
-    <T x={620 + (s + t) / 2} y={150} s={26}>100 + 1</T><T x={620 + s + t + 20} y={300} s={26} a="start">100 − 1</T></g>
+  <g opacity={at(1)}><rect x={620} y={135} width={s + t} height={s - t} fill={C.orangeSoft} stroke={C.orange} strokeWidth={4} transform={`translate(${(1 - k) * -100} 0)`} />
+    <T x={620 + (s + t) / 2} y={125} s={26}>100 + 1</T><T x={620 + s + t + 20} y={275} s={26} a="start">100 − 1</T></g>
   <T x={640} y={60} s={34} c={C.orange} o={at(1)}>(100+1)(100−1) = 100² − 1²</T>
   <T x={800} y={420} s={40} c={C.teal} o={at(2)}>10000 − 1 = 9999</T></g>; };
 

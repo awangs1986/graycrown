@@ -48,7 +48,7 @@ export const bridges = ({ at }) => { const N = { A: [640, 70], B: [400, 220], D:
     {E.map(([a, b, bend], i) => { const [x1, y1] = N[a], [x2, y2] = N[b]; const mx = (x1 + x2) / 2 + bend * 1.5, my = (y1 + y2) / 2 - Math.abs(bend) * 0.4 * Math.sign(bend);
       return <path key={i} d={`M${x1} ${y1} Q${mx} ${my} ${x2} ${y2}`} fill="none" stroke={C.ink} strokeWidth={6} opacity={.3 + .7 * at(0)} />; })}
     {Object.entries(N).map(([k, [x, y]]) => <g key={k}><circle cx={x} cy={y} r={30} fill={at(2) > .5 ? C.red : C.orange} /><T x={x} y={y + 11} s={30} c="#fff">{k}</T>
-      <T x={x + (x < 640 ? -70 : x > 640 ? 70 : 75)} y={y + (x === 640 ? (y < 200 ? 10 : 70) : 10)} s={28} c={C.purple} o={at(1)}>{deg[k]} 条</T></g>)}
+      <T x={x + (x < 640 ? -70 : x > 640 ? 70 : 75)} y={y + (x === 640 ? (y < 200 ? 10 : 10) : 10)} s={28} c={C.purple} o={at(1)}>{deg[k]} 条</T></g>)}
     <T x={640} y={428} s={34} c={C.red} o={at(3)}>4 个奇点 &gt; 2 → 不能一笔画</T></g>; };
 
 export const sumDiff = ({ at }) => { const unit = 40; return <g>
@@ -99,14 +99,20 @@ export const chickenRabbit = ({ at }) => { const lift = lerp(at(0), 0, .6); retu
 
 export const candy = ({ at }) => { const kid = (i, y, give, col) => <g key={i}><circle cx={180 + i * 150} cy={y} r={26} fill={col} /><T x={180 + i * 150} y={y + 70} s={26}>{give}</T></g>; return <g>
   <T x={110} y={60} a="start" s={28}>每人 3 颗：多 8 颗</T>{range(6).map(i => kid(i, 100, '●●●', C.orangeSoft))}<T x={1110} y={140} s={30} c={C.orange}>+8</T>
-  <T x={110} y={250} a="start" s={28}>每人 5 颗：差 4 颗</T>{range(6).map(i => kid(i, 290, '●●●●●', C.tealSoft))}<T x={1110} y={330} s={30} c={C.red}>−4</T>
-  <T x={640} y={400} s={32} o={at(0)}>每人多 2 颗；</T><T x={640} y={428} s={30} c={C.orange} o={at(1)}>总差 8 + 4 = 12 → 12 ÷ 2 = 6 人{at(3) > 0 ? '，糖 26 颗' : ''}</T></g>; };
+  <T x={110} y={225} a="start" s={28}>每人 5 颗：差 4 颗</T>{range(6).map(i => kid(i, 265, '●●●●●', C.tealSoft))}<T x={1110} y={305} s={30} c={C.red}>−4</T>
+  <T x={640} y={392} s={28} o={at(0)}>每人多 2 颗；</T><T x={640} y={430} s={28} c={C.orange} o={at(1)}>总差 8 + 4 = 12 → 12 ÷ 2 = 6 人{at(3) > 0 ? '，糖 26 颗' : ''}</T></g>; };
 
-const Walker = ({ x, y, c, label }) => <g><circle cx={x} cy={y} r={22} fill={c} /><T x={x} y={y + 9} s={22} c="#fff">{label}</T></g>;
+// Cute crayon kid walker: name tag above, coloured shirt, round face.
+const Walker = ({ x, y, c, label, dx = 0 }) => { x += dx; return <g transform={`translate(${x} ${y + 30}) scale(1.35) translate(${-x} ${-(y + 30)})`}>
+  <line x1={x - 8} y1={y + 18} x2={x - 10} y2={y + 30} stroke={C.ink} strokeWidth={4} /><line x1={x + 8} y1={y + 18} x2={x + 10} y2={y + 30} stroke={C.ink} strokeWidth={4} />
+  <ellipse cx={x} cy={y + 4} rx={17} ry={18} fill={c} stroke={C.ink} strokeWidth={3} />
+  <circle cx={x} cy={y - 28} r={17} fill="#ffe0c2" stroke={C.ink} strokeWidth={3} /><path d={`M${x - 17} ${y - 32} q 17 -22 34 0 q -17 -8 -34 0`} fill={C.ink} stroke={C.ink} strokeWidth={2} />
+  <circle cx={x - 6} cy={y - 27} r={2.5} fill={C.ink} /><circle cx={x + 6} cy={y - 27} r={2.5} fill={C.ink} /><ellipse cx={x - 10} cy={y - 20} rx={4} ry={2.5} fill="#ff9aa2" /><ellipse cx={x + 10} cy={y - 20} rx={4} ry={2.5} fill="#ff9aa2" />
+  <T x={x} y={y - 54} s={24} c={c}>{label}</T></g>; };
 export const meet = ({ at, step }) => { const k = lerp(at(2), 0, 1); const ax = 160 + 7 * 80 * k, bx = 1120 - 5 * 80 * k; return <g>
-  <line x1={160} y1={200} x2={1120} y2={200} stroke={C.ink} strokeWidth={5} /><T x={640} y={140} s={30}>600 米</T>
+  <line x1={160} y1={200} x2={1120} y2={200} stroke={C.ink} strokeWidth={5} /><T x={640} y={250} s={30}>600 米</T>
   <rect x={160} y={190} width={ax - 160} height={20} fill={C.orangeSoft} /><rect x={bx} y={190} width={1120 - bx} height={20} fill={C.tealSoft} />
-  <Walker x={ax} y={170} c={C.orange} label="明" /><Walker x={bx} y={170} c={C.teal} label="红" />
+  <Walker x={ax} y={170} c={C.orange} label="明" dx={-18} /><Walker x={bx} y={170} c={C.teal} label="红" dx={18} />
   <T x={300} y={270} s={28} c={C.orange}>70 米/分</T><T x={980} y={270} s={28} c={C.teal}>50 米/分</T>
   <T x={640} y={340} s={34} o={at(0)}>每分钟一共走 70 + 50 = 120 米</T>
   <T x={640} y={410} s={38} c={C.purple} o={at(2)}>600 ÷ 120 = 5 分钟（已过 {Math.round(k * 5)} 分）</T></g>; };
@@ -114,7 +120,7 @@ export const meet = ({ at, step }) => { const k = lerp(at(2), 0, 1); const ax = 
 export const chase = ({ at }) => { const k = lerp(at(2), 0, 1); const slow = 360 + 160 * k * 5 / 5 * 2, fast = 160 + (200 + 160 * 2) * k; return <g>
   <line x1={120} y1={200} x2={1180} y2={200} stroke={C.ink} strokeWidth={5} />
   <rect x={Math.min(fast, slow)} y={190} width={Math.abs(slow - fast)} height={20} fill={C.orangeSoft} />
-  <Walker x={fast} y={170} c={C.orange} label="哥" /><Walker x={slow} y={170} c={C.teal} label="弟" />
+  <Walker x={fast} y={170} c={C.orange} label="哥" dx={-18} /><Walker x={slow} y={170} c={C.teal} label="弟" dx={18} />
   <T x={(fast + slow) / 2} y={250} s={28} c={C.orange} o={1 - k}>相差 200 米</T>
   <T x={640} y={330} s={34} o={at(1)}>每分钟追近 40 米（速度差）</T>
   <T x={640} y={400} s={38} c={C.purple} o={at(2)}>200 ÷ 40 = 5 分钟</T></g>; };
