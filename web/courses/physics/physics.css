@@ -52,3 +52,26 @@
 .ph-recap-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); } .ph-recap-grid .ph-formula { font-size: 14px; }
 .ph-photo-wide img { object-fit: contain; background: #0f1720; }
 .ph-step, .ph-main > h2 { scroll-margin-top: 72px; }
+/* Junior-high layer: friendlier boxes, level badges and SVG animations. */
+.ph-level { display: inline-block; font-size: 11px; padding: 0 6px; margin-right: 6px; border-radius: 999px; font-weight: 700; vertical-align: 1px; }
+.ph-level.junior { background: #e3f6e8; color: #1d7a4c; } .ph-level.core { background: #e7eff9; color: #1f5fa8; }
+.ph-nav-item.active .ph-level { background: rgba(255,255,255,.25); color: #fff; }
+.ph-hook, .ph-life, .ph-funfact { border-radius: 10px; padding: 12px 16px; margin: 0 0 12px; line-height: 1.8; font-size: 16px; }
+.ph-hook { background: #fff4e0; border: 1px dashed #e0a43a; } .ph-life { background: #eef7ee; border: 1px solid #bfe0c4; } .ph-funfact { background: #f3eefc; border: 1px solid #d8c8f2; margin-top: 14px; }
+.ph-hook strong, .ph-life strong, .ph-funfact strong { display: block; margin-bottom: 2px; }
+.ph-hook p, .ph-life p, .ph-funfact p { margin: 0; }
+.ph-teach-text h3 { margin: 4px 0 8px; font-size: 17px; color: var(--ph-blue); }
+.ph-visual { display: grid; gap: 12px; }
+.ph-symbols { margin-top: 14px; } .ph-symbols h3 { margin: 0 0 6px; font-size: 16px; }
+.ph-symbols dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin: 0; } .ph-symbols dt { font-weight: 700; font-family: Georgia, serif; font-style: italic; color: var(--ph-blue); min-width: 32px; text-align: center; background: var(--ph-blue-soft); border-radius: 6px; } .ph-symbols dd { margin: 0; }
+.ph-experiment { margin-top: 14px; background: #eaf6fb; border-left: 4px solid #2e86de; border-radius: 0 8px 8px 0; padding: 10px 16px; } .ph-experiment h3 { margin: 4px 0; font-size: 16px; } .ph-experiment ol { margin: 6px 0; line-height: 1.9; } .ph-safety { color: #9a4d0b; font-size: 14px; margin: 4px 0; }
+.ph-anim { margin: 0; border: 1px solid var(--ph-line); border-radius: 10px; background: #fff; overflow: hidden; }
+.ph-anim svg { display: block; width: 100%; height: auto; background: #f4f7fb; }
+.ph-anim-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px 10px; border-top: 1px solid var(--ph-line); }
+.ph-anim-controls .ph-btn { padding: 5px 12px; font-size: 14px; }
+.ph-anim-slider { display: flex; gap: 6px; align-items: center; font-size: 14px; } .ph-anim-slider input { width: 120px; accent-color: var(--ph-blue); } .ph-anim-slider output { font-variant-numeric: tabular-nums; min-width: 52px; }
+.ph-anim figcaption { padding: 4px 12px 10px; font-size: 14px; line-height: 1.6; color: var(--ph-muted); } .ph-anim figcaption strong { color: var(--ph-ink); }
+.ph-anim.still { max-width: 380px; margin: 6px 0 8px 34px; } .ph-anim.still svg { pointer-events: none; }
+.ph-hint-btn { margin: 6px 0 0 30px; padding: 4px 10px; font-size: 13px; } .ph-hint-text { margin: 6px 0 0 30px; color: #9a6a00; background: #fff8e1; border-radius: 6px; padding: 6px 10px; font-size: 14px; }
+.ph-explain { color: var(--ph-ink) !important; background: #f6f8fa; border-radius: 6px; padding: 6px 10px; }
+@media (prefers-reduced-motion: reduce) { .ph-meter > span { transition: none; } }

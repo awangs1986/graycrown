@@ -3,6 +3,7 @@ import 'katex/dist/katex.min.css';
 import './physics.css';
 import { chapters, lessons, credits, images } from './course.mjs';
 import { gradeQuestion, shuffled } from './judge.mjs';
+import { mountAnimation } from './anims.mjs';
 import { createProgress, unlocked } from '../shared/progress.mjs';
 
 const el = (tag, text, className) => { const node = document.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
@@ -22,8 +23,8 @@ function photo(image, className = 'ph-photo') {
 }
 
 export async function mount(root, context) {
-  root.innerHTML = `<section class="physics-course"><header class="ph-header"><div><p class="ph-eyebrow">CLASSICAL PHYSICS · 先讲解，后测验</p><h1>经典物理入门</h1>
-    <p class="ph-sub">${chapters.length} 个单元 · ${lessons.length} 个阶段 · 改编自 OpenStax《Physics》（CC BY 4.0）</p></div>
+  root.innerHTML = `<section class="physics-course"><header class="ph-header"><div><p class="ph-eyebrow">PHYSICS · 从生活出发 · 先讲解，后测验</p><h1>经典物理入门</h1>
+    <p class="ph-sub">${chapters.length} 个单元 · ${lessons.length} 个阶段 · 🌱 入门（初中零基础）→ 🚀 进阶（改编自 OpenStax，CC BY 4.0）</p></div>
     <div class="ph-meter-wrap"><div class="ph-meter" role="progressbar" aria-label="课程进度" aria-valuemin="0" aria-valuemax="100"><span></span></div><span class="ph-meter-label"></span>
     <button type="button" class="ph-btn ghost ph-credits-btn">来源与版权</button></div></header>
     <div class="ph-layout"><nav class="ph-nav" aria-label="课程单元"></nav><main class="ph-main"></main></div></section>`;
@@ -45,7 +46,8 @@ export async function mount(root, context) {
       group.append(el('h3', `${chapterIndex + 1}. ${chapter.title}`), el('small', `${done}/${chapter.lessons.length}`));
       for (const lesson of chapter.lessons) {
         const index = lessons.indexOf(lesson), open = unlocked(lessons, state(), index), complete = state().completed.includes(lesson.id);
-        const item = btn(`${complete ? '✓' : open ? (lesson.kind === 'exam' ? '✎' : '○') : '🔒'} ${lesson.kind === 'exam' ? '单元测试' : lesson.title}`, () => go(index), 'ph-nav-item');
+        const item = btn(`${complete ? '✓' : open ? (lesson.kind === 'exam' ? '✎' : '○') : '🔒'} ${lesson.kind === 'exam' ? '单元测试' : lesson.title}`, () => go(index), `ph-nav-item level-${lesson.level}`);
+        if (lesson.kind === 'stage') item.prepend(el('span', lesson.level === 'junior' ? '入门' : '进阶', `ph-level ${lesson.level}`));
         item.dataset.lessonId = lesson.id; item.disabled = !open; item.classList.toggle('active', lesson === current()); item.classList.toggle('done', complete); group.append(item);
       }
       return group;
@@ -55,13 +57,24 @@ export async function mount(root, context) {
   function renderTeach(lesson, main, saved, onRead) {
     const teach = el('section', null, 'ph-step ph-teach'); teach.dataset.step = 'teach';
     teach.append(el('p', '第 1 步 · 讲解', 'ph-step-label'));
+    const t = lesson.teach;
+    if (t.hook) { const hook = el('div', null, 'ph-hook'); hook.append(el('strong', '🤔 想一想'), rich(t.hook)); teach.append(hook); }
+    if (t.life) { const life = el('div', null, 'ph-life'); life.append(el('strong', '🏠 生活中的例子'), rich(t.life)); teach.append(life); }
     const layout = el('div', null, 'ph-teach-grid'), text = el('div', null, 'ph-teach-text');
-    lesson.teach.concept.forEach(paragraph => text.append(rich(paragraph)));
-    layout.append(text, photo(lesson.image)); teach.append(layout);
-    const formulas = el('div', null, 'ph-formulas'); formulas.append(el('h3', '核心公式'));
-    for (const formula of lesson.teach.formulas) { const box = el('div', null, 'ph-formula'); box.append(tex(formula.tex, true)); if (formula.note) box.append(el('small', formula.note)); formulas.append(box); }
-    teach.append(formulas);
-    const example = el('div', null, 'ph-example'); example.append(el('h3', '例题'), rich(lesson.teach.example.problem, 'p', 'ph-problem'));
+    if (lesson.level === 'junior') text.append(el('h3', '💡 用大白话说'));
+    t.concept.forEach(paragraph => text.append(rich(paragraph)));
+    const visual = el('div', null, 'ph-visual');
+    if (lesson.anim) visual.append(mountAnimation(lesson.anim));
+    visual.append(photo(lesson.image));
+    layout.append(text, visual); teach.append(layout);
+    if (t.symbols?.length) {
+      const box = el('div', null, 'ph-symbols'); box.append(el('h3', '🔤 符号小词典'));
+      const list = el('dl'); for (const sym of t.symbols) { list.append(el('dt', sym.s), el('dd', `${sym.name}${sym.unit ? `（单位 ${sym.unit}）` : ''}：${sym.plain}`)); } box.append(list); teach.append(box);
+    }
+    if (t.formulas.length) { const formulas = el('div', null, 'ph-formulas'); formulas.append(el('h3', lesson.level === 'junior' ? '📐 一个公式就够' : '核心公式'));
+    for (const formula of t.formulas) { const box = el('div', null, 'ph-formula'); box.append(tex(formula.tex, true)); if (formula.note) box.append(el('small', formula.note)); formulas.append(box); }
+    teach.append(formulas); }
+    const example = el('div', null, 'ph-example'); example.append(el('h3', lesson.level === 'junior' ? '✏️ 小例题' : '例题'), rich(lesson.teach.example.problem, 'p', 'ph-problem'));
     const steps = el('ol', null, 'ph-solution'); example.append(steps);
     const answer = rich(`答案：${lesson.teach.example.answer}`, 'p', 'ph-example-answer');
     let shown = saved.read ? lesson.teach.example.steps.length : 0;
@@ -73,7 +86,10 @@ export async function mount(root, context) {
       reveal.hidden = all; answer.hidden = !all; finish.hidden = !all; finish.disabled = Boolean(saved.read);
       if (saved.read) finish.textContent = '✓ 讲解已读完，测验已解锁';
     };
-    example.append(answer, reveal); teach.append(example, finish); drawSteps(); main.append(teach);
+    example.append(answer, reveal); teach.append(example);
+    if (t.experiment) { const box = el('div', null, 'ph-experiment'); box.append(el('h3', `🧪 生活小实验：${t.experiment.title}`)); const ol = el('ol'); t.experiment.steps.forEach(step => ol.append(rich(step, 'li'))); box.append(ol); if (t.experiment.safety) box.append(el('p', `⚠️ 安全提示：${t.experiment.safety}`, 'ph-safety')); teach.append(box); }
+    if (t.funFact) { const box = el('div', null, 'ph-funfact'); box.append(el('strong', '🌟 你知道吗？'), rich(t.funFact)); teach.append(box); }
+    teach.append(finish); drawSteps(); main.append(teach);
   }
 
   function renderQuiz(lesson, main, saved) {
@@ -85,6 +101,7 @@ export async function mount(root, context) {
     lesson.questions.forEach((question, index) => {
       const field = el('fieldset', null, 'ph-question'); field.dataset.questionId = question.id;
       const legend = el('legend'); legend.append(el('span', String(index + 1), 'ph-qnum'), rich(question.prompt, 'span')); field.append(legend);
+      if (question.anim) field.append(mountAnimation(question.anim, { still: true }));
       const feedback = el('div', null, 'ph-feedback'); feedback.setAttribute('aria-live', 'polite');
       const save = value => { saved.answers[question.id] = value; progress.schedule(); feedback.replaceChildren(); field.classList.remove('right', 'wrong'); };
       if (question.type === 'choice') {
@@ -97,11 +114,18 @@ export async function mount(root, context) {
         input.value = typeof saved.answers[question.id] === 'string' ? saved.answers[question.id] : ''; input.addEventListener('input', () => save(input.value));
         row.append(input, el('span', question.unit ? question.unit.replace('^2', '²').replace('^3', '³').replace('*', '·') : '（纯数字）', 'ph-unit')); field.append(row);
       }
+      if (lesson.kind !== 'exam') {
+        const hintText = question.hint ?? '回到上面的讲解和例题看一看，答案就藏在里面。';
+        const hint = el('p', `💡 提示：${hintText}`, 'ph-hint-text'); hint.hidden = true;
+        const hintBtn = btn('💡 给我一点提示', () => { hint.hidden = false; hintBtn.hidden = true; state().hints[lesson.id] = (Number(state().hints[lesson.id]) || 0) + 1; progress.schedule(); }, 'ph-btn ghost ph-hint-btn');
+        field.append(hintBtn, hint);
+      }
       field.append(feedback); quiz.append(field);
       checks.push(() => {
         const result = gradeQuestion(question, saved.answers[question.id]);
         field.classList.toggle('right', result.correct); field.classList.toggle('wrong', !result.correct);
-        feedback.replaceChildren(result.correct ? rich(`✓ 正确。${question.explanation}`, 'p') : el('p', `✗ ${result.message ?? '再想一想。'}`));
+        feedback.replaceChildren(result.correct ? rich(`✓ 答对了！${question.explanation}`, 'p') : el('p', `✗ ${result.message ?? '差一点点，再想一想。'}`));
+        if (!result.correct && lesson.kind !== 'exam') feedback.append(rich(`📖 讲解：${question.explanation}`, 'p', 'ph-explain'));
         return result.correct;
       });
     });
@@ -114,7 +138,7 @@ export async function mount(root, context) {
       if (right === results.length) {
         if (!state().completed.includes(lesson.id)) state().completed.push(lesson.id);
         summary.textContent = `全部正确（${right}/${results.length}）！${lesson.kind === 'exam' ? '本单元完成。' : '下一阶段已解锁。'}`; summary.className = 'ph-summary pass';
-      } else { summary.textContent = `答对 ${right}/${results.length}。看看提示，改正后再提交。`; summary.className = 'ph-summary retry'; }
+      } else { summary.textContent = `答对 ${right}/${results.length}，已经很棒了！看看提示和讲解，改正后再提交。`; summary.className = 'ph-summary retry'; }
       busy = true; try { await progress.persist(); } catch (error) { report(error); } finally { busy = false; }
       renderHeader(); updateFooter();
     }, 'ph-btn primary ph-submit');
@@ -127,7 +151,7 @@ export async function mount(root, context) {
   function render() {
     const lesson = current(), chapter = chapters[lesson.chapterIndex], main = $('.ph-main'), saved = record(lesson);
     main.replaceChildren(status);
-    main.append(el('p', `单元 ${lesson.chapterIndex + 1} · ${chapter.title} · ${lesson.kind === 'exam' ? '单元测试' : `阶段 ${lesson.localIndex + 1}/${chapter.stages.length}`}`, 'ph-topic'), el('h2', lesson.title));
+    main.append(el('p', `单元 ${lesson.chapterIndex + 1} · ${chapter.title} · ${lesson.kind === 'exam' ? '单元测试' : `${lesson.level === 'junior' ? '🌱 入门' : '🚀 进阶'} · 阶段 ${lesson.localIndex + 1}/${chapter.stageCount}`}`, 'ph-topic'), el('h2', lesson.title));
     if (lesson.localIndex === 0) main.append(el('p', `本单元目标：${chapter.goal}　（来源：${chapter.source}）`, 'ph-goal'));
     if (lesson.kind === 'exam') {
       const recap = el('section', null, 'ph-step ph-recap'); recap.append(el('p', '考前回顾', 'ph-step-label'), el('p', '本单元的核心公式。测试不再给提示讲解，全部答对即完成本单元。'));
