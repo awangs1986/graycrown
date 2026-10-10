@@ -1,0 +1,1 @@
+{"name":"olympiad-remotion","private":true,"type":"module","scripts":{"render":"node render.mjs"},"dependencies":{"@remotion/bundler":"4.0.350","@remotion/cli":"4.0.350","@remotion/renderer":"4.0.350","react":"19.1.0","react-dom":"19.1.0","remotion":"4.0.350","roughjs":"4.6.6"}}

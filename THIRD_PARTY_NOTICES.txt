@@ -166,3 +166,22 @@ Physics course photographs (web/public/art/physics/*.webp):
 resized and re-encoded as WebP. Per-image author, license and source URL:
 web/courses/physics/CREDITS.md and web/courses/physics/images.mjs. Adapted CC BY-SA photos remain
 available under the same CC BY-SA license as the original.
+
+================================================================
+Olympiad (math thinking) course (web/courses/olympiad/, web/public/video/olympiad/, remotion/):
+All text, questions and animations are original, EXCEPT web/courses/olympiad/content-openstax.mjs:
+  Adapted from OpenStax, Prealgebra 2e (Rice University, 2020), sections 8.1-8.2,
+  https://openstax.org/details/books/prealgebra-2e, licensed CC BY-NC-SA 4.0
+  (https://creativecommons.org/licenses/by-nc-sa/4.0/). Translated into Chinese, condensed and rewritten,
+  example numbers changed. THAT FILE is licensed CC BY-NC-SA 4.0 (non-commercial, share-alike), not MIT.
+  Not endorsed by OpenStax or Rice University. Classic problems (Gauss sum, Königsberg bridges,
+Sunzi Suanjing problems, Hundred Fowls, Tower of Hanoi) are in the public domain.
+Worked-example videos are pre-rendered with Remotion (https://www.remotion.dev), used under the
+Remotion License (free for individuals, for-profit organisations with up to 3 employees and
+non-profits; larger companies need a Company License). Remotion is a build-time tool only and is
+not shipped in the app.
+Fonts in the videos: ZCOOL KuaiLe (subset, remotion/public/ZCOOLKuaiLe-subset.woff2), Copyright 2018 The ZCOOL
+KuaiLe Project Authors, SIL Open Font License 1.1 (full text: remotion/public/ZCOOLKuaiLe-OFL.txt); with
+Noto Sans CJK SC (subset) as fallback for symbols, SIL Open Font License 1.1, https://openfontlicense.org
+Crayon (hand-drawn) style: rough.js 4.6.6, Copyright (c) 2019 Preet Shihn, MIT License,
+https://github.com/rough-stuff/rough (build-time dependency of remotion/ only; not shipped in the app).

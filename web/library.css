@@ -66,3 +66,5 @@
 .course-card[data-course-id="physics"] { --card-accent: #9cc3f0; --card-accent-2: #1f5fa8; background-image: linear-gradient(rgba(156,195,240,.10) 1px, transparent 1px), linear-gradient(90deg, rgba(156,195,240,.10) 1px, transparent 1px); background-size: 18px 18px; }
 .course-card[data-course-id="physics"] .course-emblem::before { content: "Φ"; font-family: Georgia, "Times New Roman", serif; font-size: 26px; }
 .course-card[data-course-id="physics"] h2 { font-family: Georgia, "Songti SC", "Noto Serif SC", serif; }
+.course-card[data-course-id="olympiad"] { --card-accent: #ffc58a; --card-accent-2: #e8730c; background-image: radial-gradient(rgba(255,197,138,.18) 1px, transparent 1.4px); background-size: 16px 16px; }
+.course-card[data-course-id="olympiad"] .course-emblem::before { content: "∑"; font-size: 26px; font-weight: 800; }

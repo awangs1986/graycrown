@@ -50,7 +50,7 @@ test('new saves contain no C chapter assumptions and course payloads are copied'
 
 test('only finished, bundled courses can be launched', () => {
   assert.equal(new Set(courses.map(course => course.id)).size, courses.length);
-  assert.deepEqual(courses.filter(course => course.status === 'available').map(course => course.id), ['c', 'csharp', 'french-a1', 'english-nce', 'physics']);
+  assert.deepEqual(courses.filter(course => course.status === 'available').map(course => course.id), ['c', 'csharp', 'french-a1', 'english-nce', 'physics', 'olympiad']);
   for (const course of courses) {
     assert.equal(typeof course.load, course.status === 'available' ? 'function' : 'undefined');
   }

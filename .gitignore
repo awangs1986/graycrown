@@ -12,3 +12,5 @@
 /web/public/csharp/references.json
 /tests/csharp-reference/bin/
 /tests/csharp-reference/obj/
+/remotion/node_modules/
+/remotion/out/
