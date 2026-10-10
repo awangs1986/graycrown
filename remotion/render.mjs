@@ -15,7 +15,7 @@ const ids = process.argv.slice(2); const list = ids.length ? videos.filter(v => 
 for (const v of list) {
   const t0 = Date.now();
   const composition = await selectComposition({ serveUrl, id: v.id, browserExecutable });
-  await renderMedia({ composition, serveUrl, codec: 'vp9', crf: 42, outputLocation: path.join(out, `${v.id}.webm`), browserExecutable, concurrency: 4, timeoutInMilliseconds: 120000, imageFormat: 'jpeg', jpegQuality: 85 });
+  await renderMedia({ composition, serveUrl, codec: 'vp9', crf: +(process.env.CRF || 46), outputLocation: path.join(out, `${v.id}.webm`), browserExecutable, concurrency: +(process.env.CONC || 4), timeoutInMilliseconds: +(process.env.RTIMEOUT || 120000), imageFormat: 'jpeg', jpegQuality: 85 });
   await renderStill({ composition, serveUrl, frame: composition.durationInFrames - 20, output: path.join(out, `${v.id}.jpg`), imageFormat: 'jpeg', jpegQuality: 72, browserExecutable });
   await writeFile(path.join(out, `${v.id}.vtt`), vtt(v));
   console.log(v.id, `${((await stat(path.join(out, `${v.id}.webm`))).size / 1024).toFixed(0)} KB`, `${((Date.now() - t0) / 1000).toFixed(0)} s`);

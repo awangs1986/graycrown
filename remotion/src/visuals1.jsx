@@ -71,10 +71,24 @@ export const ages = ({ at, all }) => { const years = Math.round(lerp(at(3), 0, 1
   <T x={640} y={350} s={34} c={C.teal} o={at(2)}>28 ÷ 2 = 14 岁</T>
   <T x={640} y={410} s={38} c={C.orange} o={at(3)}>14 − 8 = 6 → {years} 年后</T></g>; };
 
-const Chicken = ({ x, lift }) => <g><ellipse cx={x} cy={200 - lift * 60} rx={36} ry={28} fill={C.yellow} stroke={C.ink} strokeWidth={3} /><circle cx={x + 30} cy={175 - lift * 60} r={14} fill={C.yellow} stroke={C.ink} strokeWidth={3} /><polygon points={`${x + 42},${172 - lift * 60} ${x + 56},${177 - lift * 60} ${x + 42},${182 - lift * 60}`} fill={C.orange} />
-  {[-10, 10].map(d => <line key={d} x1={x + d} y1={226 - lift * 60} x2={x + d} y2={258 - lift * 70} stroke={C.orange} strokeWidth={4} />)}</g>;
-const Rabbit = ({ x, lift }) => <g><ellipse cx={x} cy={200 - lift * 14} rx={40} ry={30} fill="#eee" stroke={C.ink} strokeWidth={3} /><circle cx={x + 34} cy={176 - lift * 14} r={18} fill="#eee" stroke={C.ink} strokeWidth={3} /><ellipse cx={x + 30} cy={140 - lift * 14} rx={6} ry={22} fill="#eee" stroke={C.ink} strokeWidth={3} /><ellipse cx={x + 42} cy={142 - lift * 14} rx={6} ry={22} fill="#eee" stroke={C.ink} strokeWidth={3} />
-  {[-24, -12].map(d => <line key={d} x1={x + d} y1={226 - lift * 14} x2={x + d} y2={258 - lift * 30} stroke={C.ink} strokeWidth={4} opacity={1 - lift} />)}{[14, 26].map(d => <line key={d} x1={x + d} y1={226} x2={x + d} y2={258} stroke={C.red} strokeWidth={5} />)}</g>;
+// Round, cute crayon chicken & bunny (same lift logic as before: chickens lift 2 legs, bunnies stand on 2 legs).
+const Chicken = ({ x, lift }) => { const y = -lift * 60; return <g>
+  {[-10, 10].map(d => <line key={d} x1={x + d} y1={222 + y} x2={x + d} y2={258 - lift * 70} stroke={C.orange} strokeWidth={5} />)}
+  <ellipse cx={x} cy={196 + y} rx={38} ry={32} fill={C.yellow} stroke={C.ink} strokeWidth={3} />
+  <path d={`M${x - 30} ${190 + y} q -18 -14 -10 -26 q 6 10 16 12`} fill={C.yellow} stroke={C.ink} strokeWidth={3} />
+  <circle cx={x + 26} cy={168 + y} r={20} fill={C.yellow} stroke={C.ink} strokeWidth={3} />
+  <path d={`M${x + 18} ${150 + y} q 4 -14 10 -2 q 6 -12 10 2`} fill={C.red} stroke={C.red} strokeWidth={3} />
+  <polygon points={`${x + 44},${164 + y} ${x + 58},${170 + y} ${x + 44},${176 + y}`} fill={C.orange} stroke={C.orange} strokeWidth={2} />
+  <circle cx={x + 32} cy={164 + y} r={3.5} fill={C.ink} /><ellipse cx={x + 22} cy={176 + y} rx={6} ry={4} fill="#ff9aa2" opacity={0.8} />
+  <path d={`M${x - 12} ${196 + y} q 12 14 26 0`} fill="none" stroke={C.orange} strokeWidth={3} /></g>; };
+const Rabbit = ({ x, lift }) => { const y = -lift * 14, W = '#ffffff'; return <g>
+  {[-24, -12].map(d => <line key={d} x1={x + d} y1={224 + y} x2={x + d} y2={258 - lift * 30} stroke={C.ink} strokeWidth={5} opacity={1 - lift} />)}
+  {[14, 26].map(d => <line key={d} x1={x + d} y1={224} x2={x + d} y2={258} stroke={C.red} strokeWidth={6} />)}
+  <ellipse cx={x + 26} cy={136 + y} rx={9} ry={26} fill={W} stroke={C.ink} strokeWidth={3} /><ellipse cx={x + 46} cy={138 + y} rx={9} ry={26} fill={W} stroke={C.ink} strokeWidth={3} />
+  <ellipse cx={x + 26} cy={138 + y} rx={3.5} ry={7} fill="#ffb3c1" /><ellipse cx={x + 46} cy={140 + y} rx={3.5} ry={7} fill="#ffb3c1" />
+  <ellipse cx={x} cy={200 + y} rx={42} ry={32} fill={W} stroke={C.ink} strokeWidth={3} /><circle cx={x - 40} cy={196 + y} r={9} fill={W} stroke={C.ink} strokeWidth={3} />
+  <circle cx={x + 34} cy={174 + y} r={22} fill={W} stroke={C.ink} strokeWidth={3} />
+  <circle cx={x + 42} cy={170 + y} r={3.5} fill={C.ink} /><ellipse cx={x + 32} cy={182 + y} rx={6} ry={4} fill="#ff9aa2" /><circle cx={x + 54} cy={176 + y} r={3} fill="#ff7a8a" /></g>; };
 export const chickenRabbit = ({ at }) => { const lift = lerp(at(0), 0, .6); return <g>
   <line x1={100} y1={260} x2={1180} y2={260} stroke={C.line} strokeWidth={4} />
   {range(5).map(i => <Chicken key={'c' + i} x={150 + i * 110} lift={lift} />)}{range(4).map(i => <Rabbit key={'r' + i} x={760 + i * 120} lift={lift} />)}
